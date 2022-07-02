@@ -6,6 +6,8 @@ namespace Network_Client
     {
         public int NetworkId;
         public Endpoint endpoint;
+        public TCP tcp;
+        public UDP udp;
 
         public delegate void MessageHandler(Message _message);
         public Dictionary<Message.Type, MessageHandler> messageHandlers;
@@ -22,8 +24,29 @@ namespace Network_Client
             //TODO: connect the TCP and UDP parts 
         }
 
+        public void Send(Message.Mode _mode, Message _message)
+        {
+            if (_mode == Message.Mode.Tcp)
+            {
+                tcp.Send(_message);
+            }
+
+            if (_mode == Message.Mode.Udp)
+            {
+                udp.Send(_message);
+            }
+
+            if (_mode == Message.Mode.Reliable)
+            {
+                udp.SendReliable(_message);
+            }
+        }
+
         public void Disconnect()
         {
+            NetworkId = -1;
+            tcp.Disconnect();
+            udp.Disconnect();
             endpoint.Reset();
         }
 
