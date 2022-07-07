@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Network_Client
+namespace NetworkClient
 {
     class Client
     {
@@ -9,7 +9,7 @@ namespace Network_Client
         public TCP tcp;
         public UDP udp;
 
-        public delegate void MessageHandler(Message _message);
+        public delegate void MessageHandler(Message message);
         public Dictionary<Message.Type, MessageHandler> messageHandlers;
 
         /// <summary>First function to be called</summary>
@@ -18,27 +18,27 @@ namespace Network_Client
             messageHandlers = new Dictionary<Message.Type, MessageHandler>();
         }
 
-        public void Connect(Endpoint _endpoint)
+        public void Connect(Endpoint ep)
         {
-            endpoint = _endpoint;
+            endpoint = ep;
             //TODO: connect the TCP and UDP parts 
         }
 
-        public void Send(Message.Mode _mode, Message _message)
+        public void Send(Message.Mode mode, Message message)
         {
-            if (_mode == Message.Mode.Tcp)
+            if (mode == Message.Mode.Tcp)
             {
-                tcp.Send(_message);
+                tcp.Send(message);
             }
 
-            if (_mode == Message.Mode.Udp)
+            if (mode == Message.Mode.Udp)
             {
-                udp.Send(_message);
+                udp.Send(message);
             }
 
-            if (_mode == Message.Mode.Reliable)
+            if (mode == Message.Mode.Reliable)
             {
-                udp.SendReliable(_message);
+                udp.SendReliable(message);
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace Network_Client
+namespace NetworkClient
 {
     class TCP
     {
@@ -9,16 +9,16 @@ namespace Network_Client
         private byte[] buffer;
 
         /// <summary>Bind the socket to the server</summary>
-        /// <param name="_endpoint">Server's endpoint</param>
-        public void Bind(Endpoint _endpoint)
+        /// <param name="endpoint">Server's endpoint</param>
+        public void Bind(Endpoint endpoint)
         {
             socket = new TcpClient();
             buffer = new byte[socket.ReceiveBufferSize];
         }
 
         /// <summary>Sends a message to the server it is bound to</summary>
-        /// <param name="_message">The message to send</param>
-        public void Send(Message _message)
+        /// <param name="message">The message to send</param>
+        public void Send(Message message)
         {
             if (socket != null)
             {

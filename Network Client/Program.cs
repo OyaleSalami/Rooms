@@ -1,4 +1,4 @@
-﻿namespace Network_Client
+﻿namespace NetworkClient
 {
     class Program
     {

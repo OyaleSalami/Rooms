@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Network_Client
+namespace NetworkClient
 {
     class Message
     {
@@ -34,10 +34,10 @@ namespace Network_Client
             readHead = 0;
         }
 
-        public Message(byte[] _data)
+        public Message(byte[] data)
         {
             readHead = 0;
-            buffer.AddRange(_data);
+            buffer.AddRange(data);
         }
         #endregion
 
@@ -48,14 +48,14 @@ namespace Network_Client
         }
 
         #region Write Functions
-        public void Add(int _value)
+        public void Add(int value)
         {
-
+            buffer.Add((byte)value);
         }
         #endregion
 
         #region Read Functions
-        public void Read(int _int)
+        public void Read(int num)
         {
 
         }

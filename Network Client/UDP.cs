@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace Network_Client
+namespace NetworkClient
 {
     class UDP
     {
@@ -9,13 +9,13 @@ namespace Network_Client
         private NetworkStream stream;
         private byte[] buffer;
 
-        public void Bind(Endpoint _endpoint)
+        public void Bind(Endpoint ep)
         {
-            endpoint = _endpoint;
+            endpoint = ep;
             socket = new UdpClient();
         }
 
-        public void Send(Message _message)
+        public void Send(Message message)
         {
             if (socket == null)
             {
@@ -23,7 +23,7 @@ namespace Network_Client
             }
         }
 
-        public void SendReliable(Message _message)
+        public void SendReliable(Message message)
         {
             if (socket == null)
             {

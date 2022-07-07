@@ -1,22 +1,23 @@
 ﻿using System.Collections.Generic;
 
-namespace Network_Client
+namespace NetworkClient
 {
     class Batcher
     {
-        private Dictionary<Message.Type, Message> messages;
-
-        public Batcher()
+        private List<Message> queue;
+        public Message.Mode mode { get; set; }
+        public Batcher(Message.Mode m)
         {
-            messages = new Dictionary<Message.Type, Message>();
+            mode = m;
+            queue = new List<Message>();
         }
 
-        public void AddMessage(Message _message)
+        public void AddMessage(Message message)
         {
-
+            queue.Add(message);
         }
 
-        public void Send(Client client)
+        public void Send()
         {
 
         }
