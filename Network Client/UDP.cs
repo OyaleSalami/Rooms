@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 
 namespace NetworkClient
 {
@@ -17,17 +18,33 @@ namespace NetworkClient
 
         public void Send(Message message)
         {
-            if (socket == null)
+            if (socket != null)
             {
+                try
+                {
 
+                }
+                catch (Exception e)
+                {
+                    //An error happened and the message couldnt be sent
+                    throw new Exception("Unable to send messsage: " + e);
+                }
             }
         }
 
         public void SendReliable(Message message)
         {
-            if (socket == null)
+            if (socket != null)
             {
+                try
+                {
 
+                }
+                catch (Exception e)
+                {
+                    //An error happened and the message couldnt be sent
+                    throw new Exception("UNable to send message: " + e);
+                }
             }
         }
 

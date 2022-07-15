@@ -2,19 +2,24 @@
 
 namespace NetworkClient
 {
+    /// <summary>A unique batching class to batch a particular Mode of messages together</summary>
     class Batcher
     {
         private List<Message> queue;
-        public Message.Mode mode { get; set; }
+        private Message.Mode mode;
         public Batcher(Message.Mode m)
         {
-            mode = m;
+            this.mode = m;
             queue = new List<Message>();
         }
 
         public void AddMessage(Message message)
         {
-            queue.Add(message);
+            if (message.mode == mode)
+            {
+                queue.Add(message);
+            }
+
         }
 
         public void Send()

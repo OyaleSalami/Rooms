@@ -1,18 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NetworkClient
 {
     class Client
     {
         public int NetworkId;
+        public bool isConnected = false;
         public Endpoint endpoint;
         public TCP tcp;
         public UDP udp;
 
         public delegate void MessageHandler(Message message);
-        public Dictionary<Message.Type, MessageHandler> messageHandlers;
+        private Dictionary<Message.Type, MessageHandler> messageHandlers;
 
-        /// <summary>First function to be called</summary>
+        ///<summary>First function to be called</summary>
         public void Init()
         {
             messageHandlers = new Dictionary<Message.Type, MessageHandler>();
@@ -21,27 +23,34 @@ namespace NetworkClient
         public void Connect(Endpoint ep)
         {
             endpoint = ep;
-            //TODO: connect the TCP and UDP parts 
+
+            tcp.Bind(ep);
+            udp.Bind(ep);
         }
 
         public void Send(Message.Mode mode, Message message)
         {
+            message.Seal();
+
             if (mode == Message.Mode.Tcp)
             {
                 tcp.Send(message);
             }
-
-            if (mode == Message.Mode.Udp)
+            else if (mode == Message.Mode.Udp)
             {
                 udp.Send(message);
             }
-
-            if (mode == Message.Mode.Reliable)
+            else if (mode == Message.Mode.Reliable)
             {
                 udp.SendReliable(message);
             }
+            else
+            {
+                throw new Exception("Mode not recognized");
+            }
         }
 
+        /// <summary>Disconnect the client from the server</summary>
         public void Disconnect()
         {
             NetworkId = -1;
@@ -52,7 +61,7 @@ namespace NetworkClient
 
         /// <summary>Add a function for handling a particular type of message</summary>
         /// <param name="type">The type of message</param>
-        /// <param name="handler">THe function that will handle it</param>
+        /// <param name="handler">The function that will handle it</param>
         /// <returns>True if a handler for the function is added, False if one exists already</returns>
         public bool AddHandler(Message.Type type, MessageHandler handler)
         {
