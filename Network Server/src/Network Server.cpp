@@ -1,16 +1,22 @@
-#include <iostream>
-#include "Debug.h"
-#include "Server.h"
+#include <stdio.h>
+#include <sys/types.h>
+
+#pragma comment (lib, "ws2_32.lib")
+#include <Winsock2.h>
+#include <Ws2tcpip.h>
 
 int main()
 {
-    Network::Server server;
+    WSADATA wsaData;
 
-    server.Start(9900);
-    
-    while(server.isRunning == true)
+    int iResult;
+
+    // Initialize Winsock
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != 0)
     {
-        server.Update();
+        printf("WSAStartup failed: %d\n", iResult);
+        return 1;
     }
 }
 

@@ -8,14 +8,16 @@ namespace Network
 	{
 	public:
 		int port; 
-		bool isRunning;
+		bool isRunning = false;
 
 		TcpListener listener;
 		
 		void Start(const int &_port)
 		{
+			Debug().Log("Server started");
 			port = _port;
 
+			listener.init();
 			//Starts listening for connections
 			listener.Start();
 			isRunning = true;

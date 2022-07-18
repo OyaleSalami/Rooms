@@ -11,9 +11,10 @@ namespace Network
 		int socketfd, port;
 		sockaddr_in server_addr;
 
-		TcpListener()
+		void init()
 		{
 			socketfd = socket(AF_INET, SOCK_STREAM, 0);
+
 			if (socketfd < 0)
 			{
 				Debug().Error("Socket not opened!");

@@ -1,42 +1,32 @@
 #pragma once
-#include "Player.h"
 
+/*
 namespace Network
 {
+	/// <summary>A Lobby abstraction(List of players ...)</summary>
 	class Lobby
 	{
 	public:
-		int maxPlayers; 
-		//std::vector<Player> players;
+		int maxClients; //Maximum number of players on the server
+		//std::vector<Client> clients; //A list to hold the references to the player
 
 		Lobby(const int &_maxPlayers)
 		{
-			maxPlayers = _maxPlayers;
-			//players.reserve(maxPlayers);
-		}
-
-		bool isFull()
-		{
-			for(int i = 1; i <= maxPlayers; i++)
-			{
-				/*
-				if (players[i].tcpClient)
-				{
-					return true;
-				}
-				*/
-			}
-
-			return false;
+			maxClients = _maxPlayers;
+			//Reserve space to reference a set amount of players
+			//clients.reserve(maxClients); 
 		}
 
 	private:
+
 		void Preload()
 		{
-			for (int i = 1; i <= maxPlayers; i++)
+			for (int i = 1; i <= maxClients; i++)
 			{
-				///players.push_back(Player(i));
+				//clients.push_back(Client(i));
 			}
 		}
+
 	};
 }
+*/

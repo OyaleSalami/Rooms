@@ -146,10 +146,10 @@
     <ClCompile Include="src\Network Server.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Client.h" />
     <ClInclude Include="src\Debug.h" />
     <ClInclude Include="src\Endpoint.h" />
     <ClInclude Include="src\TcpListener.h" />
-    <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Server.h" />
     <ClInclude Include="src\TCP.h" />
     <ClInclude Include="src\UDP.h" />

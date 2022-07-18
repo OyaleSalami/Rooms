@@ -8,7 +8,6 @@
 #endif // LINUX
 
 #include <winsock.h>
-#include "Debug.h"
 
 ///<summary>Class abstraction for a TCP Socket</summary>
 class TCP

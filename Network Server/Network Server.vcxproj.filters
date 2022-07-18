@@ -35,13 +35,13 @@
     <ClInclude Include="src\TCP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\UDP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Endpoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
