@@ -53,10 +53,10 @@ namespace NetworkClient
         /// <summary>Disconnect the client from the server</summary>
         public void Disconnect()
         {
-            NetworkId = -1;
             tcp.Disconnect();
             udp.Disconnect();
             endpoint.Reset();
+            NetworkId = -1;
         }
 
         /// <summary>Add a function for handling a particular type of message</summary>

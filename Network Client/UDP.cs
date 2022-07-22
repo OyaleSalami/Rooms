@@ -12,6 +12,11 @@ namespace NetworkClient
 
         public void Bind(Endpoint ep)
         {
+            if (ep.address == null)
+            {
+                throw new ArgumentNullException("Endpoint: Address");
+            }
+
             endpoint = ep;
             socket = new UdpClient();
         }
@@ -43,7 +48,7 @@ namespace NetworkClient
                 catch (Exception e)
                 {
                     //An error happened and the message couldnt be sent
-                    throw new Exception("UNable to send message: " + e);
+                    throw new Exception("Unable to send message: " + e);
                 }
             }
         }

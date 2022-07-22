@@ -5,19 +5,29 @@ namespace NetworkClient
 {
     class TCP
     {
+        private Endpoint endpoint;
         public TcpClient socket;
         private NetworkStream stream;
         private byte[] buffer;
 
-        /// <summary>Bind the socket to the server</summary>
-        /// <param name="endpoint">Server's endpoint</param>
-        public void Bind(Endpoint endpoint)
+        ///<summary>Bind the socket to the server</summary>
+        ///<param name="endpoint">Server's endpoint</param>
+        public TCP(Endpoint ep)
         {
+            if (ep.address == null)
+            {
+                throw new ArgumentException("Endpoint: Address");
+            }
+
+            endpoint = ep;
             socket = new TcpClient();
             buffer = new byte[socket.ReceiveBufferSize];
-
+        }
+        
+        public void Connect()
+        {
             //Tries to connect to the server
-            //Calls the ConnectCallback method if it succeeds
+            //Calls the HandleConnectCallback method if it succeeds
             socket.BeginConnect(endpoint.address, endpoint.port, HandleConnectionCallback, socket);
         }
 
@@ -26,6 +36,7 @@ namespace NetworkClient
             //End connection attempt
             socket.EndConnect(connection);
 
+            //Exit if the socket did not connect
             if (socket.Connected == false)
             {
                 return;
@@ -38,17 +49,31 @@ namespace NetworkClient
             stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
         }
 
+        int dataLog = 0;
+        /// <summary>Handle the incoming data from the remote client</summary>
         private void HandleDataCallback(IAsyncResult connection)
         {
-            //Stops receiving data
+            //Gets the number of bytes read
             int bytesRead = stream.EndRead(connection);
-            //If no data was received
-            if (bytesRead <= 0)
+
+            //If no data was received 5 times consecutively, disconnect
+            if (dataLog >= 4)
             {
+                Disconnect();
                 return;
             }
 
+            //If no data was received
+            if (bytesRead <= 0)
+            {
+                dataLog++;
 
+                //Tries receiving data asynchronously from the server again
+                stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+                return;
+            }
+
+            dataLog = 0;
             //Starts receiving data asynchronously from the server again
             stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
         }
