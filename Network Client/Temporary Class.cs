@@ -1,6 +1,6 @@
 ﻿namespace NetworkClient
 {
-    class Vector2
+    public class Vector2
     {
         public float x, y;
         public Vector2(int _x, int _y)
@@ -9,7 +9,7 @@
             y = _y;
         }
     }
-    class Vector3
+    public class Vector3
     {
         public float x, y, z;
         public Vector3(int _x, int _y, int _z)
@@ -19,7 +19,7 @@
             z = _z;
         }
     }
-    class Quaternion
+    public class Quaternion
     {
         public float x, y, z, w;
         public Quaternion(int _x, int _y, int _z, int _w)
