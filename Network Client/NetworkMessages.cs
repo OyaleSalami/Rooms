@@ -13,6 +13,7 @@ namespace Rooms
 
         ///<summary>Declaring an empty SecuredMessage</summary>
         ///<param name="type">The indetifier for which type of message it is</param>
+        ///<param name="EncryptionKey">Key to encrypt the message with</param>
         public SecuredMessage(Type type, string EncryptionKey)
         {
             ResetReadHead();
@@ -21,6 +22,7 @@ namespace Rooms
 
         ///<summary>For recreating a Packet from a byte array</summary>
         ///<param name="data">the byte array</param>
+        ///<param name="DecryptionKey">Key to decrypt the message with</param>
         public SecuredMessage(byte[] data, string DecryptionKey)
         {
             buffer.AddRange(data);

@@ -7,7 +7,7 @@ namespace Rooms
     /// <summary>Abstraction for a Client on a network</summary>
     public class Client
     {
-        /// <summary>Network Identifier for the Client</summary>
+        /// <summary>Identifies the Client on the network</summary>
         public int NetworkId;
         /// <summary>Endpoint that the Client is bound to</summary>
         public Endpoint endpoint;
@@ -56,6 +56,7 @@ namespace Rooms
         /// <param name="message">Message to bo sent</param>
         public void Send(Message.Mode mode, Message message)
         {
+            message.Add(NetworkId); //Adds the client's ID to the message
             message.Seal(); //Readies the message for sending
 
             if (mode == Message.Mode.Tcp)

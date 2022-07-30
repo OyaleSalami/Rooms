@@ -1,35 +1,49 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 
 namespace Rooms.Transport
 {
+    /// <summary>Abstraction for a UDP Client-Socket</summary>
     public class UDP
     {
-        public UdpClient socket;
+        /// <summary>Represents the connection state of the UDP Client</summary>
+        public bool isConnected = false;
+
+        private UdpClient socket;
         private Endpoint endpoint;
         private NetworkStream stream;
         private byte[] buffer;
 
+        /// <summary>Create and bind the UDP Client to a remote host</summary>
+        /// <param name="ep">Enpoint of the remote host</param>
         public UDP(Endpoint ep)
         {
             if (ep.IsValid() == false)
             {
                 throw new ArgumentNullException("Endpoint is not valid");
             }
+
             endpoint = ep;
         }
+        
+        /// <summary>Attempts to connect to the bound remote host</summary>
         public void Connect()
         {
             socket = new UdpClient();
+            socket.Connect(new IPEndPoint(IPAddress.Parse(endpoint.address), endpoint.port));
         }
-
+        
+        /// <summary>Send a message to the bound remote host (Unreliable)</summary>
+        /// <param name="message">Message to send</param>
         public void Send(Message message)
-        {
+        { 
             if (socket != null)
             {
                 try
                 {
-
+                    //Starts sending the data to the remote host
+                    socket.BeginSend(message.Unpack(), message.Length(), null, null);
                 }
                 catch (Exception e)
                 {
@@ -39,22 +53,14 @@ namespace Rooms.Transport
             }
         }
 
+        /// <summary>Send a message to the bound remote host (Reliable)</summary>
+        /// <param name="message">Message to send</param>
         public void SendReliable(Message message)
         {
-            if (socket != null)
-            {
-                try
-                {
-
-                }
-                catch (Exception e)
-                {
-                    //An error happened and the message couldnt be sent
-                    throw new Exception("Unable to send message: " + e);
-                }
-            }
+            //TODO: To be implemented
         }
 
+        /// <summary>Disconnect the UDP Client from any remote host</summary>
         public void Disconnect()
         {
             stream.Close();

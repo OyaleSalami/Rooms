@@ -6,6 +6,8 @@ namespace Rooms.Transport
     /// <summary>Abstraction for a TCP Client-Socket</summary>
     public class TCP
     {
+        /// <summary>Represents the connection state of the TCP Client</summary>
+        public bool isConnected = false;
         private TcpClient socket;
         private Endpoint endpoint;
 
@@ -16,9 +18,9 @@ namespace Rooms.Transport
         ///<param name="ep">Endpoint of the remote host</param>
         public TCP(Endpoint ep)
         {
-            if (ep.address == null)
+            if (ep.IsValid() == false)
             {
-                throw new ArgumentException("Endpoint: Address");
+                throw new ArgumentException("Endpoint is not valid");
             }
 
             endpoint = ep;
@@ -26,6 +28,7 @@ namespace Rooms.Transport
             buffer = new byte[socket.ReceiveBufferSize];
         }
         
+        /// <summary>Attempt to connect to the bound endpoint</summary>
         public void Connect()
         {
             //Tries to connect to the server
@@ -33,6 +36,8 @@ namespace Rooms.Transport
             socket.BeginConnect(endpoint.address, endpoint.port, HandleConnectionCallback, socket);
         }
 
+        /// <summary>Called if the connection attempt was successful</summary>
+        /// <param name="connection"></param>
         private void HandleConnectionCallback(IAsyncResult connection)
         {
             //End connection attempt
@@ -41,8 +46,11 @@ namespace Rooms.Transport
             //Exit if the socket did not connect
             if (socket.Connected == false)
             {
+                isConnected = false;
                 return;
             }
+
+            isConnected = true; //Set the connection state of the TCP client
 
             //Get the network stream for sending and receiving data
             stream = socket.GetStream();
@@ -55,7 +63,7 @@ namespace Rooms.Transport
         /// <summary>Handle the incoming data from the remote client</summary>
         private void HandleDataCallback(IAsyncResult connection)
         {
-            //Gets the number of bytes read
+            //Get the number of bytes read from the stream
             int bytesRead = stream.EndRead(connection);
 
             //If no data was received 5 times consecutively, disconnect
@@ -70,18 +78,18 @@ namespace Rooms.Transport
             {
                 dataLog++;
 
-                //Tries receiving data asynchronously from the server again
+                //Tries receiving data asynchronously from the remote host again
                 stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
                 return;
             }
 
+            //If data was received from the remote host
             dataLog = 0;
-            //Starts receiving data asynchronously from the server again
+            //Starts receiving data asynchronously from the remote host again
             stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
         }
 
-
-        /// <summary>Sends a message to the server it is bound to</summary>
+        /// <summary>Sends a message to the remote host it is bound to</summary>
         /// <param name="message">The message to send</param>
         public void Send(Message message)
         {
@@ -89,7 +97,8 @@ namespace Rooms.Transport
             {
                 try
                 {
-
+                    // Start sending data to the remote host
+                    stream.BeginWrite(message.Unpack(), 0, message.Length(), null, null); 
                 }
                 catch (Exception e)
                 {
@@ -105,6 +114,7 @@ namespace Rooms.Transport
             stream = null;
             socket.Close();
             socket = null;
+            isConnected = false;
         }
     }
 }
