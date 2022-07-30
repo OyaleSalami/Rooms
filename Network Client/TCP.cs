@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace NetworkClient
+namespace Rooms.Transport
 {
-    class TCP
+    /// <summary>Abstraction for a TCP Client-Socket</summary>
+    public class TCP
     {
+        private TcpClient socket;
         private Endpoint endpoint;
-        public TcpClient socket;
-        private NetworkStream stream;
-        private byte[] buffer;
 
-        ///<summary>Bind the socket to the server</summary>
-        ///<param name="endpoint">Server's endpoint</param>
+        private byte[] buffer;
+        private NetworkStream stream;
+
+        ///<summary>Bind the socket to a remote endpoint</summary>
+        ///<param name="ep">Endpoint of the remote host</param>
         public TCP(Endpoint ep)
         {
             if (ep.address == null)

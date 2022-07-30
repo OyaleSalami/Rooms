@@ -1,4 +1,4 @@
-﻿namespace NetworkClient
+﻿namespace Rooms.Util
 {
     public class Vector2
     {

@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Rooms.Util;
 
-namespace NetworkClient
+namespace Rooms
 {
-    class Packet : IMessage
+    /// <summary> SecuredMessage class for encrypted messages </summary>
+    public class SecuredMessage : Message
     {
-        public Message message; // Message part is stored here, the rest of the class contains the header
+        ///Message to be encryted is stored here,the rest of the class contains the header
+        public Message message;
 
-        ///<summary>Declaring an empty Packet</summary>
-        ///<param name="type">The indetifier for which type of message/packet it is</param>
-        public Packet(Type type)
+        ///<summary>Declaring an empty SecuredMessage</summary>
+        ///<param name="type">The indetifier for which type of message it is</param>
+        public SecuredMessage(Type type, string EncryptionKey)
         {
             ResetReadHead();
             Add((int)type);
@@ -18,15 +21,19 @@ namespace NetworkClient
 
         ///<summary>For recreating a Packet from a byte array</summary>
         ///<param name="data">the byte array</param>
-        public Packet(byte[] data)
+        public SecuredMessage(byte[] data, string DecryptionKey)
         {
             buffer.AddRange(data);
             ResetReadHead();
         }
     }
 
-    class Message : IMessage
+    /// <summary>Represents a message to be sent over the network</summary>
+    public class Message : IMessage
     {
+        ///<summary>Empty constructor</summary>
+        public Message() { }
+
         ///<summary>Declaring an empty message</summary>
         ///<param name="type">The indetifier for which type of message it is</param>
         public Message(Type type)
@@ -44,27 +51,41 @@ namespace NetworkClient
         }
     }
 
+    /// <summary>Base class for all type of messages</summary>
     public abstract class IMessage
     {
-        protected int readHead;   //To indicate the postion of the read head
-        protected bool writeable = true; //To lock/unlock writing access
-        protected List<byte> buffer; //The array where all the data is stored
+        ///To indicate the postion of the read head
+        protected int readHead;   
+        ///To lock/unlock writing access
+        protected bool writeable = true; 
+        ///The array where all the data is stored
+        protected List<byte> buffer; 
 
+        /// <summary>Inbuilt enum to identify the type of enum</summary>
         public enum Type
         {
+            /// <summary>Identifies an authentication request</summary>
             auth = 1,
+            /// <summary>Returned by the server/client if authentication failed</summary>
             authFailed,
+            /// <summary>Identifies a chat message</summary>
             chat,
+            /// <summary>Identifies a ping check message</summary>
             ping,
-            spawnPlayer,
+            /// <summary>Identifies a custom message</summary>
             custom
         }
 
+        ///<summary>Refers to the transport mode by which a message is to be sent</summary>
         public enum Mode
         {
+            /// <summary>A message to be broadcasted</summary>
             Multicast = 1,
+            /// <summary>A message to be sent over TCP</summary>
             Tcp,
+            /// <summary>A message to be sent over UDP(Unreliable)</summary>
             Udp,
+            /// <summary>A message to be sent over UDP(Reliable)</summary>
             Reliable,
         }
 
@@ -81,9 +102,8 @@ namespace NetworkClient
             return buffer.ToArray();
         }
 
-        /// <summary>Simple check to see whether or not the message contains valid 
-        /// info</summary>
-        public bool isValid()
+        /// <summary>Check to see whether the message has valid info</summary>
+        public bool IsValid()
         {
             if (buffer.Count > 4)
             {
@@ -307,6 +327,9 @@ namespace NetworkClient
         #endregion
 
         #region Read Functions
+        /// <summary>Reads a short from the message and moves the read head</summary>
+        /// <returns>Short from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public short ReadShort()
         {
             try
@@ -326,6 +349,9 @@ namespace NetworkClient
             }
 
         }
+        /// <summary>Reads an int from the message and moves the read head</summary>
+        /// <returns>Int from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public int ReadInt()
         {
             try
@@ -344,6 +370,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Int: " + e);
             }
         }
+        /// <summary>Read a long from the message and moves the read head</summary>
+        /// <returns>Long from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public long ReadLong()
         {
             try
@@ -363,6 +392,9 @@ namespace NetworkClient
             }
 
         }
+        /// <summary>Reads a bool from the message and moves the read head</summary>
+        /// <returns>Bool from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public bool ReadBool()
         {
             try
@@ -381,6 +413,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Bool: " + e);
             }
         }
+        /// <summary>Reads a float from the message and moves the read head</summary>
+        /// <returns>Bool from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public float ReadFloat()
         {
             try
@@ -399,6 +434,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Float: " + e);
             }
         }
+        /// <summary>Reads a double from the message and moves the read head</summary>
+        /// <returns>Double from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public double ReadDouble()
         {
             try
@@ -417,6 +455,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Double: " + e);
             }
         }
+        /// <summary>Reads a string from the message and moves the read head</summary>
+        /// <returns>String from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public string ReadString()
         {
             try
@@ -436,10 +477,12 @@ namespace NetworkClient
                 throw new Exception("Unable to Read String: " + e);
             }
         }
-
         #endregion
 
         #region Check Functions
+        /// <summary>Reads a short from the message without moving the read head</summary>
+        /// <returns>Short from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public short CheckShort()
         {
             try
@@ -457,6 +500,9 @@ namespace NetworkClient
             }
 
         }
+        /// <summary>Reads an int from the message without moving the read head</summary>
+        /// <returns>Int from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public int CheckInt()
         {
             try
@@ -473,6 +519,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Int: " + e);
             }
         }
+        /// <summary>Read a long from the message without moving the read head</summary>
+        /// <returns>Long from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public long CheckLong()
         {
             try
@@ -489,6 +538,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Long: " + e);
             }
         }
+        /// <summary>Reads a bool from the message without moving the read head</summary>
+        /// <returns>Bool from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public bool CheckBool()
         {
             try
@@ -505,6 +557,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Bool: " + e);
             }
         }
+        /// <summary>Reads a float from the message without moving the read head</summary>
+        /// <returns>Bool from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public float CheckFloat()
         {
             try
@@ -521,6 +576,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Float: " + e);
             }
         }
+        /// <summary>Reads a double from the message without moving the read head</summary>
+        /// <returns>Double from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public double CheckDouble()
         {
             try
@@ -537,6 +595,9 @@ namespace NetworkClient
                 throw new Exception("Unable to Read Double: " + e);
             }
         }
+        /// <summary>Reads a string from the message without moving the read head</summary>
+        /// <returns>String from the message</returns>
+        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
         public string CheckString()
         {
             try
@@ -559,6 +620,5 @@ namespace NetworkClient
         #region Encryption Functions
         //TODO: Encryption
         #endregion
-
     }
 }

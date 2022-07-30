@@ -15,10 +15,7 @@ namespace NetworkClient
 
         public void AddMessage(Message message)
         {
-            if (message.mode == mode)
-            {
-                queue.Add(message);
-            }
+             queue.Add(message);
 
         }
 

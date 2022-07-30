@@ -1,48 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
+using Rooms.Transport;
 
-namespace NetworkClient
+namespace Rooms
 {
-    class Client
+    /// <summary>Abstraction for a Client on a network</summary>
+    public class Client
     {
+        /// <summary>Network Identifier for the Client</summary>
         public int NetworkId;
-        public bool isConnected = false;
+        /// <summary>Endpoint that the Client is bound to</summary>
         public Endpoint endpoint;
-        public TCP tcp;
-        public UDP udp;
+        /// <summary>Bool to show if the Client is connected</summary>
+        public bool isConnected = false;
 
+        private TCP tcp;
+        private UDP udp;
+
+        /// <summary>A template for a function that handles messages</summary>
+        /// <param name="message">Message to be handled</param>
         public delegate void MessageHandler(Message message);
         private Dictionary<Message.Type, MessageHandler> messageHandlers;
 
-        ///<summary>First function to be called</summary>
-        public void Init()
+        ///<summary>Initializes the message handlers</summary>
+        private void Init()
         {
             messageHandlers = new Dictionary<Message.Type, MessageHandler>();
         }
 
+        /// <summary>Attempt to connect the server to a client</summary>
+        /// <param name="ep">Endpoint of the remote host</param>
         public void Connect(Endpoint ep)
         {
+            //Check if the endpoint is valid
+            if(ep.IsValid() == false)
+            {
+                throw new Exception("Endpoint is not valid");
+            }
+            //Check if the client is already connected
+            if(isConnected == true)
+            {
+                throw new Exception("Disconnect before trying to connect");
+            }
+            Init();
             endpoint = ep;
+            tcp = new TCP(ep);
+            udp = new UDP(ep);
 
-            tcp.Bind(ep);
-            udp.Bind(ep);
+            tcp.Connect(); //Attempts to connect the TCP
+            udp.Connect(); //Attempts to connect the UDP
         }
 
+        /// <summary>Sends a message to the remote host that the client is bound to</summary>
+        /// <param name="mode">Transport used to send the message</param>
+        /// <param name="message">Message to bo sent</param>
         public void Send(Message.Mode mode, Message message)
         {
-            message.Seal();
+            message.Seal(); //Readies the message for sending
 
             if (mode == Message.Mode.Tcp)
             {
-                tcp.Send(message);
+                tcp.Send(message); //Sends a message via TCP
             }
             else if (mode == Message.Mode.Udp)
             {
-                udp.Send(message);
+                udp.Send(message); //Sends a message via UDP(Unreliable)
             }
             else if (mode == Message.Mode.Reliable)
             {
-                udp.SendReliable(message);
+                udp.SendReliable(message); //Sends a message via UDP(Reliable)
             }
             else
             {
@@ -50,7 +76,7 @@ namespace NetworkClient
             }
         }
 
-        /// <summary>Disconnect the client from the server</summary>
+        ///<summary>Disconnect the client from the server</summary>
         public void Disconnect()
         {
             tcp.Disconnect();
@@ -59,7 +85,7 @@ namespace NetworkClient
             NetworkId = -1;
         }
 
-        /// <summary>Add a function for handling a particular type of message</summary>
+        /// <summary>Add a function to handle a particular type of message</summary>
         /// <param name="type">The type of message</param>
         /// <param name="handler">The function that will handle it</param>
         /// <returns>True if a handler for the function is added, False if one exists already</returns>
@@ -86,5 +112,6 @@ namespace NetworkClient
             }
             return false;
         }
+
     }
 }

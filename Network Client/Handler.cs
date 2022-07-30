@@ -1,4 +1,4 @@
-﻿namespace NetworkClient
+﻿namespace Rooms
 {
     class Handler
     {

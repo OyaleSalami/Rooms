@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace NetworkClient
+namespace Rooms.Transport
 {
-    class UDP
+    public class UDP
     {
         public UdpClient socket;
         private Endpoint endpoint;
         private NetworkStream stream;
         private byte[] buffer;
 
-        public void Bind(Endpoint ep)
+        public UDP(Endpoint ep)
         {
-            if (ep.address == null)
+            if (ep.IsValid() == false)
             {
-                throw new ArgumentNullException("Endpoint: Address");
+                throw new ArgumentNullException("Endpoint is not valid");
             }
-
             endpoint = ep;
+        }
+        public void Connect()
+        {
             socket = new UdpClient();
         }
 
