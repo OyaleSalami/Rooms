@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NetworkClient
+namespace Rooms
 {
     /// <summary>A unique batching class to batch a particular Mode of messages together</summary>
     class Batcher
