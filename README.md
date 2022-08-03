@@ -1,9 +1,11 @@
 # Rooms
-A Client/Server Networking library for games
+A Client/Server Networking Library primarily for making multiplayer games.
 
-<h5>Client</h5>
-The Client part of the library is written in C# and it compiles to a dll file. <br>
-It doesn't have any .Net version specific methods.
+## Client
+* The Client part of the library is written in C# and it compiles to a dll file.
+* It is not tied to a specific .NET version specific.
+* You will have to compile it yourself to target specific .NET versions or different architectures.
+* It also has XML Comments, so make sure to include the dll and XML files into your projects.
 
-<h5>Server</h5>
-The Server is written in C++ (Winsock 2) and it compiles to an executable.
+## Server
+* The Server is written in C++ (Winsock 2) and it compiles to an executable.
