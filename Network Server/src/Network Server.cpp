@@ -1,7 +1,4 @@
-#define DEFAULT_BUFFER_LENGTH 512
-
-#include <stdio.h>
-#include <iostream>
+#include "Server.h"
 
 #pragma comment (lib, "ws2_32.lib")
 #include <Winsock2.h>
@@ -10,8 +7,9 @@
 
 int main()
 {
-    WSADATA wsaData;
     int iResult;
+    WSADATA wsaData;
+    Network::Server server;
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -21,8 +19,16 @@ int main()
         return 1;
     }
 
-    #define DEFAULT_PORT "27015"
+    server.Start(10);
 
+    while (server.isRunning == true)
+    {
+        server.Update();
+    }
+}
+
+
+/*
     struct addrinfo *result = NULL, *ptr = NULL, hints;
     ZeroMemory(&hints, sizeof(hints));
 
@@ -84,6 +90,4 @@ int main()
     }
 
     printf("accept failed: %d\n", WSAGetLastError());
-    std::cin.get();
-}
-
+*/

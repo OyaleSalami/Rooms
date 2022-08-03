@@ -1,7 +1,5 @@
 #pragma once
 #include "Endpoint.h"
-#include "TCP.h"
-#include "UDP.h"
 
 namespace Network
 {
@@ -18,7 +16,6 @@ namespace Network
 		int id;
 		Player player;		// One player per client
 		Endpoint endpoint;  // The client's endpoint information
-		TCP tcp;
 	};
 
 }
