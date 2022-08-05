@@ -88,7 +88,7 @@ namespace Rooms
             /// <summary>A message to be sent over UDP(Unreliable)</summary>
             Udp,
             /// <summary>A message to be sent over UDP(Reliable)</summary>
-            Reliable,
+            Reliable
         }
 
         #region Auxilliary Functions

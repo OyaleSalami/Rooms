@@ -142,13 +142,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Lobby.h" />
     <ClCompile Include="src\Network Server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Debug.h" />
     <ClInclude Include="src\Endpoint.h" />
-    <ClInclude Include="src\TcpListener.h" />
+    <ClInclude Include="src\Message.h" />
     <ClInclude Include="src\Server.h" />
     <ClInclude Include="src\TCP.h" />
     <ClInclude Include="src\UDP.h" />
