@@ -146,7 +146,6 @@
     <ClCompile Include="src\Network Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Client.h" />
     <ClInclude Include="src\Debug.h" />
     <ClInclude Include="src\Endpoint.h" />
     <ClInclude Include="src\TcpListener.h" />

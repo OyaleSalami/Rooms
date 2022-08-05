@@ -63,30 +63,48 @@ namespace Rooms.Transport
         /// <summary>Handle the incoming data from the remote client</summary>
         private void HandleDataCallback(IAsyncResult connection)
         {
-            //Get the number of bytes read from the stream
-            int bytesRead = stream.EndRead(connection);
+            try
+            {
+                //Get the number of bytes read from the stream
+                int bytesRead = stream.EndRead(connection);
+                //If no data was received 5 times consecutively, disconnect
+                if (dataLog >= 4)
+                {
+                    Disconnect();
+                    return;
+                }
 
-            //If no data was received 5 times consecutively, disconnect
-            if (dataLog >= 4)
+                //If no data was received
+                if (bytesRead <= 0)
+                {
+                    dataLog++;
+
+                    //Tries receiving data asynchronously from the remote host again
+                    stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+                    return;
+                }
+
+                //If data was received from the remote host
+                dataLog = 0;
+                byte[] data = new byte[bytesRead];
+                Array.Copy(buffer, data, bytesRead);
+
+                HandleData(data);
+                buffer = null;
+
+                //Starts receiving data asynchronously from the remote host again
+                stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+            }
+            catch
             {
                 Disconnect();
-                return;
             }
+        }
 
-            //If no data was received
-            if (bytesRead <= 0)
-            {
-                dataLog++;
-
-                //Tries receiving data asynchronously from the remote host again
-                stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
-                return;
-            }
-
-            //If data was received from the remote host
-            dataLog = 0;
-            //Starts receiving data asynchronously from the remote host again
-            stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+        private void HandleData(byte[] data)
+        {
+            Console.Write("Data Handled: ");
+            Console.WriteLine(data);
         }
 
         /// <summary>Sends a message to the remote host it is bound to</summary>

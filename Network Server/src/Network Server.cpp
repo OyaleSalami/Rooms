@@ -9,7 +9,7 @@ int main()
 {
     int iResult;
     WSADATA wsaData;
-    Network::Server server;
+    Network::Server server(10);
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -19,7 +19,7 @@ int main()
         return 1;
     }
 
-    server.Start(10);
+    server.Start();
 
     while (server.isRunning == true)
     {
