@@ -16,24 +16,30 @@ namespace Network
 	public:
 		int id;
 		Endpoint endpoint;  // The client's endpoint information
+		SOCKET tcp; //The client's tcp socket
 	};
 
 	class Lobby
 	{
 	public:
 		int maxPlayers;
-		std::vector<SOCKET> clients;
+		std::vector<Client> clients;
 
 		Lobby() {}
 		Lobby(const int &max)
 		{
 			maxPlayers = max;
 		}
+
 		void load()
 		{
-			for (int i = 0; i < maxPlayers; i++)
+			for (int i = 1; i <= maxPlayers; i++)
 			{
-				clients.push_back(SOCKET(INVALID_SOCKET));
+				Client temp;
+				temp.tcp = SOCKET(INVALID_SOCKET);
+				temp.id = i;
+
+				clients.push_back(temp);
 			}
 		}
 
@@ -41,7 +47,7 @@ namespace Network
 		{
 			for (int i = 0; i < maxPlayers; i++)
 			{
-				if (clients[i] == INVALID_SOCKET) { return false; }
+				if (clients[i].tcp == INVALID_SOCKET) { return false; }
 			}
 
 			return true;
@@ -82,9 +88,9 @@ namespace Network
 
 			for (int i = 0; i < lobby.maxPlayers; i++)
 			{
-				if (lobby.clients[i] != INVALID_SOCKET)
+				if (lobby.clients[i].tcp != INVALID_SOCKET)
 				{
-					Send(lobby.clients[i], text, sizeof(text), 0);
+					Send(lobby.clients[i].tcp, text, sizeof(text), 0);
 				}
 			}
 		}
@@ -164,17 +170,14 @@ namespace Network
 			}
 
 			//Accept the connection
-
 			for (int i = 0; i < lobby.maxPlayers; i++)
 			{
-				
-
-				if (lobby.clients[i] == INVALID_SOCKET)
+				if (lobby.clients[i].tcp == INVALID_SOCKET)
 				{
 					//Accept a client socket
-					lobby.clients[i] = accept(ListenSocket, NULL, NULL);
+					lobby.clients[i].tcp = accept(ListenSocket, NULL, NULL);
 
-					if (lobby.clients[i] == INVALID_SOCKET)
+					if (lobby.clients[i].tcp == INVALID_SOCKET)
 					{
 						Debug::Error("Accept failed: " + WSAGetLastError());
 						close();
