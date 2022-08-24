@@ -1,9 +1,11 @@
 #pragma once
+#include <string>
+#include <stdint.h>
 
 namespace Network
 {
 	///<summary>Inbuilt enum to identify the type of enum</summary>
-	enum Type
+	enum class Type:uint16_t
 	{
 		/// <summary>Identifies an authentication request</summary>
 		auth = 1,
@@ -18,7 +20,7 @@ namespace Network
 	};
 
 	///<summary>Refers to the transport mode by which a message is to be sent</summary>
-	enum Mode
+	enum class Mode:uint16_t
 	{
 		/// <summary>A message to be broadcasted</summary>
 		Multicast = 1,
@@ -34,6 +36,8 @@ namespace Network
 	class Message
 	{
 	public:
+		std::string buffer;
+
 		Message();
 		Message(const Type mode);
 		Message(Message &message);
@@ -47,18 +51,20 @@ namespace Network
 		void Write(const float &value);
 		void Write(const double &value);
 
-		void Read(char &value, bool moveHead = true);
-		void Read(bool &value, bool moveHead = true);
-		void Read(short &value, bool moveHead = true);
-		void Read(int &value, bool moveHead = true);
-		void Read(long &value, bool moveHead = true);
-		void Read(float &value, bool moveHead = true);
-		void Read(double &value, bool moveHead = true);
+		void Read(char &value, const bool &moveHead = true);
+		void Read(bool &value, const bool &moveHead = true);
+		void Read(short &value, const bool &moveHead = true);
+		void Read(int &value, const bool &moveHead = true);
+		void Read(long &value, const bool &moveHead = true);
+		void Read(float &value, const bool &moveHead = true);
+		void Read(double &value, const bool &moveHead = true);
 
+		void Length();
 		void InsertLength();
+		void ResetReadHead();
+		void Clear();
 		
 	private:
 		int readHead;
-		char data[];
 	};
 }
