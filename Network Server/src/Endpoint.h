@@ -16,6 +16,7 @@ namespace Network
 	class Endpoint
 	{
 	public:
+		Endpoint() {}
 		Endpoint(const char* address, unsigned short port);
 		Endpoint(sockaddr* addr);
 		IPVersion GetIPVersion();

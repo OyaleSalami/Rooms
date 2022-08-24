@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Client.cpp" />
     <ClCompile Include="src\Debug.cpp" />
     <ClCompile Include="src\Endpoint.cpp" />
     <ClCompile Include="src\Message.cpp" />

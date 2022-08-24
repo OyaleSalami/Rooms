@@ -9,13 +9,19 @@ namespace Network
 	class Client
 	{
 	public:
-		/// The client's network identifier
-		int id;
-		/// The client's endpoint information
+		int id = -1;
 		Endpoint endpoint;
-		///The client's tcp socket
-		SOCKET tcp;
-		///The client's udp socket
-		SOCKET udp;
+
+		TcpSocket tcp;
+		SOCKET udp = INVALID_SOCKET;
+
+		Client(){}
+
+		void Connect(int _id, SOCKET &_tcp);
+		void Connect(int _id, SOCKET &_tcp, SOCKET &_udp);
+
+		void Disconnect();
+
+		int GetId();
 	};
 }

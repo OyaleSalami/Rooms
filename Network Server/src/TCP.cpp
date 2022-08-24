@@ -33,16 +33,7 @@ namespace Network
 			return NetResult::Error;
 		}
 
-		//Disables Nagles algorithm for TCP Sockets
-		int result = 0;
-		result = setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, (const char*)1, sizeof(BOOL));
-		
-		if (result != 0) //If an error occurred
-		{
-			int error = WSAGetLastError();
-			return NetResult::Error;
-		}
-
+		//TODO: Disable Nagles algorithm for TCP Sockets
 		return NetResult::Success;
 	}
 
@@ -78,7 +69,8 @@ namespace Network
 
 			if (result != 0)
 			{
-				int err = WSAGetLastError();
+				int error = WSAGetLastError();
+				Debug::Error("Error while binding: ");
 				return NetResult::Error;
 			}
 		}
@@ -89,10 +81,13 @@ namespace Network
 
 			if (result != 0)
 			{
-				int err = WSAGetLastError();
+				int error = WSAGetLastError();
+				Debug::Error("Error while binding: ");
+
 				return NetResult::Error;
 			}
 		}
+
 		return NetResult::Success;
 	}
 
@@ -109,6 +104,8 @@ namespace Network
 		if (result != 0)
 		{
 			int error = WSAGetLastError();
+			Debug::Error("Error while listening: " + error);
+
 			return NetResult::Error;
 		}
 

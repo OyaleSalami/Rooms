@@ -14,8 +14,15 @@ namespace Network
 		std::vector<Client> clients;
 
 		Server(const int& maxPlayers);
-		void Start();
-		void Update();
+		void Start(); //Starts the server
+		void Update(); //Starts listening and accepting clients
 		void Stop();
+
+		int GetNext();
+
+		void SendToAll(SendMode mode, const Message &message);
+	private:
+		int maxPlayers = 0;
+		bool listen = false;
 	};
 }

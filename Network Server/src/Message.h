@@ -2,25 +2,32 @@
 #include <string>
 #include <stdint.h>
 
+#include "Globals.h"
+#include "Utility.h"
+
+
 namespace Network
 {
+	using namespace Util;
+
 	///<summary>Inbuilt enum to identify the type of enum</summary>
-	enum class Type:uint16_t
+	enum class MessageType:uint16_t
 	{
 		/// <summary>Identifies an authentication request</summary>
-		auth = 1,
+		Auth = 1,
 		/// <summary>Returned by the server/client if authentication failed</summary>
-		authFailed,
+		AuthFailed,
 		/// <summary>Identifies a chat message</summary>
-		chat,
+		Chat,
 		/// <summary>Identifies a ping check message</summary>
-		ping,
+		Ping,
 		/// <summary>Identifies a custom message</summary>
-		custom
+		Custom,
+		Invalid
 	};
 
 	///<summary>Refers to the transport mode by which a message is to be sent</summary>
-	enum class Mode:uint16_t
+	enum class SendMode:uint16_t
 	{
 		/// <summary>A message to be broadcasted</summary>
 		Multicast = 1,
@@ -37,19 +44,20 @@ namespace Network
 	{
 	public:
 		std::string buffer;
+		MessageType type;
 
-		Message();
-		Message(const Type mode);
+		//Message();
+		Message(const MessageType &_type);
 		Message(Message &message);
 		Message(char* _data, const int &length);
 
-		void Write(const char &value);
-		void Write(const bool &value);
-		void Write(const short &value);
-		void Write(const int &value);
-		void Write(const long &value);
-		void Write(const float &value);
-		void Write(const double &value);
+		void Write(char &value);
+		void Write(bool &value);
+		void Write(short &value);
+		void Write(int &value);
+		void Write(long &value);
+		void Write(float &value);
+		void Write(double &value);
 
 		void Read(char &value, const bool &moveHead = true);
 		void Read(bool &value, const bool &moveHead = true);
@@ -62,7 +70,8 @@ namespace Network
 		void Length();
 		void InsertLength();
 		void ResetReadHead();
-		void Clear();
+		void Clear(); 
+		void Append(const void* data, uint32_t size);
 		
 	private:
 		int readHead;
