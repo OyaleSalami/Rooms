@@ -115,12 +115,48 @@ namespace Network
 		}
 	}
 
+	void Message::Read(short& value, const bool& moveHead)
+	{
+		value = (short)buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(short);
+		}
+	}
+
 	void Message::Read(int& value, const bool& moveHead)
 	{
 		value = (int)buffer[readHead];
 		if (moveHead == true)
 		{
 			readHead = readHead + sizeof(int);
+		}
+	}
+
+	void Message::Read(long& value, const bool& moveHead)
+	{
+		value = (long)buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(long);
+		}
+	}
+
+	void Message::Read(float& value, const bool& moveHead)
+	{
+		value = (float)buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(float);
+		}
+	}
+
+	void Message::Read(double& value, const bool& moveHead)
+	{
+		value = (double)buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(double);
 		}
 	}
 
