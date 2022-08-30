@@ -19,13 +19,12 @@ namespace Network
 		Endpoint() {}
 		Endpoint(const char* address, unsigned short port);
 		Endpoint(sockaddr* addr);
-		IPVersion GetIPVersion();
 		std::vector<uint8_t> GetIPBytes();
 		std::string GetHostName();
 		std::string GetIpString();
 		unsigned short GetPort();
 		sockaddr_in GetSockaddrIPv4();
-		sockaddr_in6 GetSockaddrIPv6();
+		IPVersion GetIPVersion();
 		void Print();
 
 	private:

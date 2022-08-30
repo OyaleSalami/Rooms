@@ -40,7 +40,7 @@ namespace Network
 		if (listen == false) { return; }
 
 		//Listen
-		if (ListenSocket.Listen(Endpoint("0.0.0.0", 8080)) == NetResult::Success)
+		if (ListenSocket.Listen(Endpoint("0.0.0.0", 8088)) == NetResult::Success)
 		{
 			Debug::Log("Socket successfully listening", false);
 			TcpSocket newConnection;

@@ -12,7 +12,7 @@ namespace Network
 	class TcpSocket
 	{
 	public:
-		TcpSocket(IPVersion ipversion = IPVersion::IPv4, SOCKET = INVALID_SOCKET);
+		TcpSocket(SOCKET = INVALID_SOCKET);
 		NetResult Create();
 		NetResult Close();
 		NetResult Bind(Endpoint endpoint);
@@ -26,10 +26,8 @@ namespace Network
 		NetResult Recv(Message& message);
 		NetResult Send(Message& message);
 		SOCKET GetHandle();
-		IPVersion GetIPVersion();
 
 	private:
 		SOCKET handle = INVALID_SOCKET;
-		IPVersion ipversion = IPVersion::IPv4;
 	};
 }

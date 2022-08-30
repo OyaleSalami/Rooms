@@ -5,13 +5,13 @@ namespace Network
 	void Client::Connect(int _id, SOCKET& _tcp)
 	{
 		id = _id;
-		tcp = TcpSocket(IPVersion::IPv4, _tcp);
+		tcp = TcpSocket(_tcp);
 	}
 
 	void Client::Connect(int _id, SOCKET& _tcp, SOCKET& _udp)
 	{
 		id = _id;
-		tcp = TcpSocket(IPVersion::IPv4, _tcp);
+		tcp = TcpSocket(_tcp);
 		udp = _udp;
 	}
 

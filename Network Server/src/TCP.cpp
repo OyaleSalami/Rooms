@@ -2,9 +2,8 @@
 
 namespace Network
 {
-	TcpSocket::TcpSocket(IPVersion _ipversion, SOCKET _handle)
+	TcpSocket::TcpSocket(SOCKET _handle)
 	{
-		ipversion = _ipversion;
 		handle = _handle;
 	}
 
@@ -15,17 +14,8 @@ namespace Network
 			return NetResult::Error;
 		}
 
-		if (ipversion == IPVersion::IPv4)
-		{
-			//Attempt to create a TCP socket IPv4
-			handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		}
-
-		if (ipversion == IPVersion::IPv6)
-		{
-			//Attempt to create a TCP socket IPv6
-			handle = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-		}
+		//Attempt to create a TCP socket IPv4
+		handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (handle == INVALID_SOCKET)
 		{
@@ -62,30 +52,14 @@ namespace Network
 			return NetResult::Error;
 		}
 
-		if (ipversion == IPVersion::IPv4)
+		sockaddr_in addr = endpoint.GetSockaddrIPv4();
+		int result = bind(handle, (sockaddr*)&addr, sizeof(sockaddr_in));
+
+		if (result != 0)
 		{
-			sockaddr_in addr = endpoint.GetSockaddrIPv4();
-			int result = bind(handle, (sockaddr*)&addr, sizeof(sockaddr_in));
-
-			if (result != 0)
-			{
-				int error = WSAGetLastError();
-				Debug::Error("Error while binding: ");
-				return NetResult::Error;
-			}
-		}
-		else //IPv6
-		{
-			sockaddr_in6 addr = endpoint.GetSockaddrIPv6();
-			int result = bind(handle, (sockaddr*)&addr, sizeof(sockaddr_in6));
-
-			if (result != 0)
-			{
-				int error = WSAGetLastError();
-				Debug::Error("Error while binding: ");
-
-				return NetResult::Error;
-			}
+			int error = WSAGetLastError();
+			Debug::Error("Error while binding: ");
+			return NetResult::Error;
 		}
 
 		return NetResult::Success;
@@ -126,7 +100,7 @@ namespace Network
 		}
 
 		Endpoint newConnectionEndpoint((sockaddr*)&addr);
-		outSocket = TcpSocket(IPVersion::IPv4, newConnectionHandle);
+		outSocket = TcpSocket(newConnectionHandle);
 
 		return NetResult::Success;
 	}
@@ -255,10 +229,5 @@ namespace Network
 	SOCKET TcpSocket::GetHandle()
 	{
 		return handle;
-	}
-
-	IPVersion TcpSocket::GetIPVersion()
-	{
-		return ipversion;
 	}
 }

@@ -1,4 +1,8 @@
 #pragma once
+#define WIN32_LEAN_AND_MEAN
+
+#include <Winsock2.h>
+#include <Ws2tcpip.h>
 #include "Debug.h"
 
 namespace Network
@@ -8,8 +12,7 @@ namespace Network
 		enum class IPVersion
 		{
 			Invalid,
-			IPv4,
-			IPv6
+			IPv4
 		};
 
 		enum class NetResult

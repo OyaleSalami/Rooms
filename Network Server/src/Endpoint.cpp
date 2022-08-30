@@ -26,7 +26,7 @@ namespace Network
 			}
 		}
 
-		//Attempt to resolve hostnam to IPV4 address
+		//Attempt to resolve hostname to IPV4 address
 		addrinfo hints = {};
 		hints.ai_family = AF_INET; //IPV4 addresses only
 
@@ -51,46 +51,6 @@ namespace Network
 			freeaddrinfo(hostinfo);
 			return;
 		}
-
-		//IPv6
-		in6_addr addr6; //IPV6 address
-		//Presentation format to network format
-		result = inet_pton(AF_INET6, ip, &addr6);
-
-		if (result == 1)
-		{
-			address = ip;
-			hostname = ip;
-
-			ip_bytes.resize(16);
-			memcpy(&ip_bytes[0], &addr6.u, 16);
-
-			ipversion = IPVersion::IPv6;
-			return;
-		}
-
-		//Attempt to resolve hostnam to IPV6 address
-		addrinfo hintsv6 = {};
-		hints.ai_family = AF_INET6; //IPV6 addresses only
-
-		addrinfo* hostinfov6 = nullptr;
-		result = getaddrinfo(ip, NULL, &hintsv6, &hostinfov6);
-		if (result == 0)
-		{
-			sockaddr_in6* host_addr = reinterpret_cast<sockaddr_in6*>(hostinfov6->ai_addr);
-
-			address.resize(46);
-			inet_ntop(AF_INET6, &host_addr->sin6_addr, &address[0], 46);
-
-			hostname = ip;
-
-			ip_bytes.resize(16);
-			memcpy(&ip_bytes[0], &host_addr->sin6_addr, 16);
-			ipversion = IPVersion::IPv6;
-
-			freeaddrinfo(hostinfov6);
-			return;
-		}
 	}
 
 	Endpoint::Endpoint(sockaddr* addr)
@@ -105,18 +65,6 @@ namespace Network
 
 			address.resize(16);
 			inet_ntop(AF_INET, &addrv4->sin_addr, &address[0], 16);
-			hostname = address;
-		}
-		else //IPv6
-		{
-			sockaddr_in6* addrv6 = reinterpret_cast<sockaddr_in6*>(addr);
-			ipversion = IPVersion::IPv6;
-			port = ntohs(addrv6->sin6_port);
-			ip_bytes.resize(16);
-			memcpy(&ip_bytes[0], &addrv6->sin6_addr, 16);
-
-			address.resize(46);
-			inet_ntop(AF_INET6, &addrv6->sin6_addr, &address[0], 46);
 			hostname = address;
 		}
 	}
@@ -148,11 +96,6 @@ namespace Network
 
 	sockaddr_in Endpoint::GetSockaddrIPv4()
 	{
-		if (ipversion != IPVersion::IPv4)
-		{
-			throw NetworkException("IP Adress is not IPv4");
-		}
-
 		sockaddr_in addr = {};
 		addr.sin_family = AF_INET;
 		memcpy(&addr.sin_addr, &ip_bytes[0], sizeof(ULONG));
@@ -161,37 +104,9 @@ namespace Network
 		return addr;
 	}
 
-	sockaddr_in6 Endpoint::GetSockaddrIPv6()
-	{
-		if (ipversion != IPVersion::IPv6)
-		{
-			throw NetworkException("IP Adress is not IPv4");
-		}
-
-		sockaddr_in6 addr = {};
-		addr.sin6_family = AF_INET6;
-		memcpy(&addr.sin6_addr, &ip_bytes[0], 16);
-		addr.sin6_port = htons(port);
-
-		return addr;
-	}
-
 	void Endpoint::Print()
 	{
-		switch (ipversion)
-		{
-		case IPVersion::IPv4:
-			Debug::Log("IP version: IPv4", false);
-			break;
-
-		case IPVersion::IPv6:
-			Debug::Log("IP version: IPv6", false);
-			break;
-
-		default:
-			Debug::Log("Invalid IP version", false);
-		}
-
+		Debug::Log("IP version: IPv4", false);
 		Debug::Log("Hostname: " + hostname, false);
 		Debug::Log("IP: " + address, false);
 		Debug::Log("Port: " + port, false);
