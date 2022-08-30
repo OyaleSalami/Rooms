@@ -10,15 +10,15 @@ namespace Network
 {
 	using namespace Util;
 
-	///<summary>Inbuilt enum to identify the type of enum</summary>
+	///<summary>Inbuilt enum to identify the type of message</summary>
 	enum class MessageType:uint16_t
 	{
+		/// <summary>Identifies a chat message</summary>
+		Chat = 1,
 		/// <summary>Identifies an authentication request</summary>
-		Auth = 1,
+		Auth,
 		/// <summary>Returned by the server/client if authentication failed</summary>
 		AuthFailed,
-		/// <summary>Identifies a chat message</summary>
-		Chat,
 		/// <summary>Identifies a ping check message</summary>
 		Ping,
 		/// <summary>Identifies a custom message</summary>
@@ -26,8 +26,8 @@ namespace Network
 		Invalid
 	};
 
-	///<summary>Refers to the transport mode by which a message is to be sent</summary>
-	enum class SendMode:uint16_t
+	///<summary>Transport mode by which a message is to be sent</summary>
+	enum class SendMode
 	{
 		/// <summary>A message to be broadcasted</summary>
 		Multicast = 1,

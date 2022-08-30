@@ -11,15 +11,18 @@ namespace Network
 	{
 		if (handle != INVALID_SOCKET)
 		{
-			return NetResult::Error;
+			return NetResult::Error; //Trying to "create" an already created socket
 		}
 
-		//Attempt to create a TCP socket IPv4
+		//Attempt to create an IPv4 TCP socket
 		handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (handle == INVALID_SOCKET)
 		{
+			//If socket creation failed
 			int error = WSAGetLastError();
+			Debug::Error("Error creating scoket: " + error);
+
 			return NetResult::Error;
 		}
 
@@ -31,13 +34,15 @@ namespace Network
 	{
 		if (handle = INVALID_SOCKET)
 		{
+			//Socket is probably closed already
 			return NetResult::Error;
 		}
 
 		int result = closesocket(handle);
 
-		if (result != 0) //an error why trying to close the socket
+		if (result != 0) 
 		{
+			//If an error occurred while trying to close the socket
 			return NetResult::Error;
 		}
 
@@ -47,18 +52,15 @@ namespace Network
 
 	NetResult TcpSocket::Bind(Endpoint endpoint)
 	{
-		if (endpoint.GetIPVersion() == IPVersion::Invalid)
-		{
-			return NetResult::Error;
-		}
-
 		sockaddr_in addr = endpoint.GetSockaddrIPv4();
 		int result = bind(handle, (sockaddr*)&addr, sizeof(sockaddr_in));
 
 		if (result != 0)
 		{
+			//Error while trying to bind a socket
 			int error = WSAGetLastError();
-			Debug::Error("Error while binding: ");
+			Debug::Error("Error while binding: " + error);
+
 			return NetResult::Error;
 		}
 
@@ -67,12 +69,6 @@ namespace Network
 
 	NetResult TcpSocket::Listen(Endpoint endpoint, int backlog)
 	{
-		//Backlog is the pending connections
-		if (Bind(endpoint) != NetResult::Success)
-		{
-			return NetResult::Error;
-		}
-
 		int result = listen(handle, backlog);
 
 		if (result != 0)
@@ -121,11 +117,18 @@ namespace Network
 
 	NetResult TcpSocket::Send(const void* data, int numberOfBytes, int& bytesSent)
 	{
+		if (handle == INVALID_SOCKET)
+		{
+			Debug::Error("Invalid socket");
+		}
+		//Send data to (handle)
 		bytesSent = send(handle, (const char*)data, numberOfBytes, NULL);
 
 		if (bytesSent == SOCKET_ERROR)
 		{
 			int error = WSAGetLastError();
+			Debug::Error("Error sending data: " + std::to_string(error));
+
 			return NetResult::Error;
 		}
 		return NetResult::Success;
@@ -161,6 +164,7 @@ namespace Network
 			NetResult result = Send(bufferOffset, bytesRemaining, bytesSent);
 			if (result != NetResult::Success)
 			{
+				Debug::Error("Error sending data");
 				return NetResult::Error;
 			}
 			totalBytesSent += bytesSent;

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Sockets;
+using System.Text;
 
 namespace Rooms.Transport
 {
@@ -14,25 +16,20 @@ namespace Rooms.Transport
         private byte[] buffer;
         private NetworkStream stream;
 
-        ///<summary>Bind the socket to a remote endpoint</summary>
-        ///<param name="ep">Endpoint of the remote host</param>
-        public TCP(Endpoint ep)
+        ///<summary>Instantiates the socket</summary>
+        public TCP()
         {
-            if (ep.IsValid() == false)
-            {
-                throw new ArgumentException("Endpoint is not valid");
-            }
-
-            endpoint = ep;
             socket = new TcpClient();
             buffer = new byte[socket.ReceiveBufferSize];
         }
         
         /// <summary>Attempt to connect to the bound endpoint</summary>
-        public void Connect()
+        ///<param name="ep">Endpoint of the remote host</param>
+        public void Connect(Endpoint ep)
         {
+            endpoint = ep;
             //Tries to connect to the server
-            //Calls the HandleConnectCallback method if it succeeds
+            //Calls (HandleConnectCallback) if a success
             socket.BeginConnect(endpoint.address, endpoint.port, HandleConnectionCallback, socket);
         }
 
@@ -43,14 +40,10 @@ namespace Rooms.Transport
             //End connection attempt
             socket.EndConnect(connection);
 
-            //Exit if the socket did not connect
-            if (socket.Connected == false)
-            {
-                isConnected = false;
-                return;
-            }
-
-            isConnected = true; //Set the connection state of the TCP client
+            Console.WriteLine("TCP Connection State: " + socket.Connected);
+           
+            //Set the connection state of the TCP client
+            isConnected = true; 
 
             //Get the network stream for sending and receiving data
             stream = socket.GetStream();
@@ -63,48 +56,38 @@ namespace Rooms.Transport
         /// <summary>Handle the incoming data from the remote client</summary>
         private void HandleDataCallback(IAsyncResult connection)
         {
+            Console.WriteLine("Receiving data");
             try
             {
                 //Get the number of bytes read from the stream
                 int bytesRead = stream.EndRead(connection);
-                //If no data was received 5 times consecutively, disconnect
-                if (dataLog >= 4)
+                
+                if(bytesRead >= 0)
                 {
-                    Disconnect();
-                    return;
+                    //If data was received from the remote host
+                    byte[] data = new byte[bytesRead];
+                    Array.Copy(buffer, data, bytesRead);
+
+                    HandleData(data); //Handles (data)
+                    buffer = null; 
                 }
-
-                //If no data was received
-                if (bytesRead <= 0)
-                {
-                    dataLog++;
-
-                    //Tries receiving data asynchronously from the remote host again
-                    stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
-                    return;
-                }
-
-                //If data was received from the remote host
-                dataLog = 0;
-                byte[] data = new byte[bytesRead];
-                Array.Copy(buffer, data, bytesRead);
-
-                HandleData(data);
-                buffer = null;
 
                 //Starts receiving data asynchronously from the remote host again
                 stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
             }
             catch
             {
+                Console.WriteLine("Error receiving data");
                 Disconnect();
             }
         }
 
         private void HandleData(byte[] data)
         {
-            Console.Write("Data Handled: ");
-            Console.WriteLine(data);
+            string text = Encoding.ASCII.GetString(data, 0, data.Length);
+            Console.WriteLine("Data Handled: ");
+
+            Console.WriteLine(text);
         }
 
         /// <summary>Sends a message to the remote host it is bound to</summary>

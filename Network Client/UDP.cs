@@ -15,7 +15,7 @@ namespace Rooms.Transport
         private NetworkStream stream;
         private byte[] buffer;
 
-        /// <summary>Create and bind the UDP Client to a remote host</summary>
+        /// <summary>Creates and Binds the UDP Client to a remote host</summary>
         /// <param name="ep">Enpoint of the remote host</param>
         public UDP(Endpoint ep)
         {
@@ -25,12 +25,12 @@ namespace Rooms.Transport
             }
 
             endpoint = ep;
+            socket = new UdpClient();
         }
         
         /// <summary>Attempts to connect to the bound remote host</summary>
         public void Connect()
         {
-            socket = new UdpClient();
             socket.Connect(new IPEndPoint(IPAddress.Parse(endpoint.address), endpoint.port));
         }
         

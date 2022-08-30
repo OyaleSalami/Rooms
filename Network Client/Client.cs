@@ -14,21 +14,21 @@ namespace Rooms
         /// <summary>Bool to show if the Client is connected</summary>
         public bool isConnected = false;
 
-        private TCP tcp;
-        private UDP udp;
+        private TCP tcp; //Client's TCP Socket
+        private UDP udp; //Client's UDP Socket
 
-        /// <summary>A template for a function that handles messages</summary>
-        /// <param name="message">Message to be handled</param>
+        /// <summary>A template for functions that handle messages</summary>
+        /// <param name="message">Type of Message to be handled</param>
         public delegate void MessageHandler(Message message);
         private Dictionary<Message.Type, MessageHandler> messageHandlers;
 
-        ///<summary>Initializes the message handlers</summary>
+        ///<summary>Initializes the message handler dictionary</summary>
         private void Init()
         {
             messageHandlers = new Dictionary<Message.Type, MessageHandler>();
         }
 
-        /// <summary>Attempt to connect the server to a client</summary>
+        /// <summary>Attempt to connect the server to a client(TCP and UDP)</summary>
         /// <param name="ep">Endpoint of the remote host</param>
         public void Connect(Endpoint ep)
         {
@@ -40,15 +40,15 @@ namespace Rooms
             //Check if the client is already connected
             if(isConnected == true)
             {
-                throw new Exception("Disconnect before trying to connect");
+                throw new Exception("Disconnect before trying to connect again!");
             }
-            Init();
             endpoint = ep;
-            tcp = new TCP(ep);
-            udp = new UDP(ep);
+            Init();
+            tcp = new TCP(); //Create TCP Socket
+            udp = new UDP(ep); //Create and Bind UDP socket to remote endpoint
 
-            tcp.Connect(); //Attempts to connect the TCP
-            udp.Connect(); //Attempts to connect the UDP
+            tcp.Connect(ep); //Attempts to connect the TCP socket
+            udp.Connect(); //Attempts to connect the UDP socket
         }
 
         /// <summary>Sends a message to the remote host that the client is bound to</summary>
@@ -113,6 +113,5 @@ namespace Rooms
             }
             return false;
         }
-
     }
 }

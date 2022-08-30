@@ -28,6 +28,7 @@ namespace Network
 		SOCKET GetHandle();
 
 	private:
+		int id;
 		SOCKET handle = INVALID_SOCKET;
 	};
 }

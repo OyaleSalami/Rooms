@@ -9,20 +9,25 @@ namespace Network
 	class Server
 	{
 	public:
-		bool running = false;
-		TcpSocket ListenSocket;
-		std::vector<Client> clients;
+		bool running = false; //Represents the server's state
+		TcpSocket ListenSocket; //Listen Socket for TCP Connections
+		std::vector<Client> clients; //List of connected clients
 
-		Server(const int& maxPlayers);
-		void Start(); //Starts the server
-		void Update(); //Starts listening and accepting clients
+		/// <summary>Default constructor: Sets max player and port</summary>
+		Server(const int& maxPlayers, const int &_port);
+		/// <summary>Creates and Binds the socket</summary>
+		void Start();
+		/// <summary>Logic for server(Listen, Accept, Send, Receive)</summary>
+		void Update();
+		/// <summary>Stops the listening and closes the service</summary>
 		void Stop();
 
 		int GetNext();
-
 		void SendToAll(SendMode mode, const Message &message);
+
 	private:
-		int maxPlayers = 0;
-		bool listen = false;
+		int port; //Port the server listens on
+		int maxPlayers = 0; //Max accepted players on the server
+		bool listen = false; //Is the server listening for new connections or not
 	};
 }

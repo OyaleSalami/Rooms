@@ -6,11 +6,12 @@ using namespace Network;
 int main()
 {
     NetworkSystem network;
-    Server server(10);
+    Server server(10, 8088);
 
     if (network.Initialize() == true)
     {
-        std::cout << "Network Initialized" << std::endl;
+        Debug::Log("Network Initialized");
+
         server.Start();
 
         while (server.running == true)
@@ -21,7 +22,7 @@ int main()
     }
     else
     {
-        std::cout << "Network Not Initialized" << std::endl;
+        Debug::Log("Network Not Initialized");
     }
     network.ShutDown();
 }

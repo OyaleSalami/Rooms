@@ -7,7 +7,6 @@ class Program
     static void Main(string[] args)
     {
         gameClient.Connect(new Endpoint(8088, "127.0.0.1"));
-
         
         Console.WriteLine("Hello World");
         Console.Read();
