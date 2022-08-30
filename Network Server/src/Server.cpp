@@ -65,7 +65,8 @@ namespace Network
 		}
 
 		Message message(MessageType::Chat);
-		message.Append("Hello from the server");
+		message.Write(std::string("Hello, form the server"));
+
 		SendToAll(SendMode::Tcp, message);
 	}
 

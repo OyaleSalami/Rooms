@@ -14,6 +14,14 @@ int main()
 
         server.Start();
 
+        Message message(MessageType::Chat);
+        message.Write(std::string("Hello, form the server"));
+
+        std::string output;
+        message.Read(output);
+
+        Debug::Log(output);
+
         while (server.running == true)
         {
             server.Update();

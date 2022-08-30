@@ -1,4 +1,8 @@
 #pragma once
+
+//#define WIN32_LEAN_AND_MEAN
+//#include <winsock.h>
+
 #include <string>
 #include <stdint.h>
 
@@ -43,21 +47,22 @@ namespace Network
 	class Message
 	{
 	public:
-		std::string buffer;
 		MessageType type;
+		std::string buffer = "";
 
-		//Message();
+		//Message Constructors();
+		Message();
 		Message(const MessageType &_type);
-		Message(Message &message);
 		Message(char* _data, const int &length);
 
-		void Write(char &value);
-		void Write(bool &value);
-		void Write(short &value);
-		void Write(int &value);
-		void Write(long &value);
-		void Write(float &value);
-		void Write(double &value);
+		void Write(const char &value);
+		void Write(const bool &value);
+		void Write(const short &value);
+		void Write(const int &value);
+		void Write(const long &value);
+		void Write(const float &value);
+		void Write(const double &value);
+		void Write(const std::string &value);
 
 		void Read(char &value, const bool &moveHead = true);
 		void Read(bool &value, const bool &moveHead = true);
@@ -66,6 +71,7 @@ namespace Network
 		void Read(long &value, const bool &moveHead = true);
 		void Read(float &value, const bool &moveHead = true);
 		void Read(double &value, const bool &moveHead = true);
+		void Read(std::string &value, const bool& moveHead = true);
 
 		void Length();
 		void InsertLength();

@@ -1,8 +1,12 @@
 #include "Message.h"
-#include <winsock.h>
 
 namespace Network
 {
+	Message::Message()
+	{
+		Clear();
+	}
+
 	Message::Message(const MessageType &_type)
 	{
 		Clear(); //Reset the whole message 
@@ -15,65 +19,130 @@ namespace Network
 
 		if (length > MAX_MSG_SIZE)
 		{
-			throw NetworkException("[Message(char* data , const int& length)] - Data size exceeded max message size");
+			throw NetworkException("Data exceeded max message size");
 			return;
 		}
 
 		buffer.insert(buffer.end(), (char*)data, (char*)data + length);
 	}
 
-	void Message::Write(char &value)
+	#pragma region Writing Functions
+
+	void Message::Write(const char &value)
 	{
 		//value = htonl(value);
 		Append(&value, sizeof(char));
 	}
 
-	void Message::Write(bool& value)
+	void Message::Write(const bool& value)
 	{
 		//value = htons(value);
 		Append(&value, sizeof(bool));
 	}
 
-	void Message::Write(short& value)
+	void Message::Write(const short& value)
 	{
 		//value = htons(value);
 		Append(&value, sizeof(short));
 	}
 
-	void Message::Write(int& value)
+	void Message::Write(const int& value)
 	{
-		value = htons(value);
+		//value = htons(value);
 		Append(&value, sizeof(int));
 	}
 
-	void Message::Write(long& value)
+	void Message::Write(const long& value)
 	{
-		value = htonl(value);
+		//value = htonl(value);
 		Append(&value, sizeof(long));
 	}
 
-	void Message::Write(float& value)
+	void Message::Write(const float& value)
 	{
 		//value = htonf(value);
 		Append(&value, sizeof(float));
 	}
 
-	void Message::Write(double& value)
+	void Message::Write(const double& value)
 	{
 		//value = htons(value);
 		Append(&value, sizeof(double));
+	}
+
+	void Message::Write(const std::string &value)
+	{
+		int size = value.length();
+		//value = htons(value);
+		Append(&size, sizeof(int)); //Append the size of the string first
+
+		for (int i = 0; i < size; i++)
+		{
+			Write(value[i]); //Then append the string per character
+		}
 	}
 
 	void Message::Append(const void* data, uint32_t size)
 	{
 		if (size > MAX_MSG_SIZE)
 		{
-			throw NetworkException("[Write(const void* data, uint32_t size)] - Data size exceeded max message size");
+			throw NetworkException("Data to be appended exceeded max message size");
 			return;
 		}
 
 		buffer.insert(buffer.end(), (char*)data, (char*)data + size);
 	}
+
+	#pragma endregion
+
+	#pragma region Reading Functions
+
+	void Message::Read(char& value, const bool& moveHead)
+	{
+		value = buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(char);
+		}
+	}
+
+	void Message::Read(bool& value, const bool& moveHead)
+	{
+		value = (bool)buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(bool);
+		}
+	}
+
+	void Message::Read(int& value, const bool& moveHead)
+	{
+		value = (int)buffer[readHead];
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(int);
+		}
+	}
+
+	void Message::Read(std::string &value, const bool& moveHead)
+	{
+		int size;
+		Read(size);
+
+		value.resize(size);
+
+		for (int i = 0; i < size; i++)
+		{
+			value[i] = buffer[readHead + i];
+		}
+
+		if (moveHead == true)
+		{
+			readHead = readHead + sizeof(size);
+		}
+	}
+
+	#pragma endregion
 
 	void Message::Clear()
 	{
