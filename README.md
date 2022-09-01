@@ -3,7 +3,7 @@
 
 ## Client
 * The Client part of the library is written in C# and it compiles to a dll file.
-* It is not tied to a specific .NET version specific.
+* It is not tied to a specific .NET version.
 * You will have to compile it yourself to target specific .NET versions or different architectures.
 * It also has XML Comments, so make sure to include the dll and XML files into your projects.
 * This library is primarily targeted for Unity Applications but will work fine independently.
