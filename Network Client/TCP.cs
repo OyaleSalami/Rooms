@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -52,7 +53,6 @@ namespace Rooms.Transport
             stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
         }
 
-        int dataLog = 0;
         /// <summary>Handle the incoming data from the remote client</summary>
         private void HandleDataCallback(IAsyncResult connection)
         {
@@ -66,25 +66,28 @@ namespace Rooms.Transport
                 {
                     //If data was received from the remote host
                     byte[] data = new byte[bytesRead];
+                    
                     Array.Copy(buffer, data, bytesRead);
 
                     HandleData(data); //Handles (data)
-                    buffer = null; 
+                    buffer = new byte[socket.ReceiveBufferSize];
                 }
 
                 //Starts receiving data asynchronously from the remote host again
                 stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine("Error receiving data");
+                Console.WriteLine("Error receiving data: " + ex);
                 Disconnect();
             }
         }
 
         private void HandleData(byte[] data)
         {
-            string text = Encoding.ASCII.GetString(data, 0, data.Length);
+            Message message = new Message(data);
+            string text = message.ReadString();
+
             Console.WriteLine("Data Handled: ");
 
             Console.WriteLine(text);

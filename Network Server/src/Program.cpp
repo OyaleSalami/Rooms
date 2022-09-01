@@ -13,18 +13,19 @@ int main()
         Debug::Log("Network Initialized");
 
         server.Start();
-
-        Message message(MessageType::Chat);
-        message.Write(std::string("Hello, form the server"));
-
-        std::string output;
-        message.Read(output);
-
-        Debug::Log(output);
+        server.Update();
 
         while (server.running == true)
         {
-            server.Update();
+            std::string text = "";
+            std::cin >> text;
+
+            Message message(MessageType::Chat);
+            message.Write(text);
+
+            server.SendToAll(SendMode::Tcp, message);
+
+            std::cin.get();
             Sleep(1);
         }
     }

@@ -63,11 +63,6 @@ namespace Network
 		{
 			Debug::Error("Failed to listen for new connections", false);
 		}
-
-		Message message(MessageType::Chat);
-		message.Write(std::string("Hello, form the server"));
-
-		SendToAll(SendMode::Tcp, message);
 	}
 
 	void Server::Stop()

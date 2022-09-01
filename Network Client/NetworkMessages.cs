@@ -9,12 +9,17 @@ namespace Rooms
     public class Message : IMessage
     {
         ///<summary>Empty constructor</summary>
-        public Message() { }
+        public Message()
+        { 
+            buffer = new List<byte>();
+            ResetReadHead();
+        }
 
         ///<summary>Declaring an empty message</summary>
         ///<param name="type">The indetifier for which type of message it is</param>
         public Message(Type type)
         {
+            buffer = new List<byte>();
             ResetReadHead();
             Add((int)type);
         }
@@ -23,6 +28,7 @@ namespace Rooms
         ///<param name="data">the byte array</param>
         public Message(byte[] data)
         {
+            buffer = new List<byte>();
             buffer.AddRange(data);
             ResetReadHead();
         }
