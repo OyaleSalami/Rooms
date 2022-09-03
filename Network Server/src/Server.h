@@ -9,7 +9,7 @@ namespace Network
 	class Server
 	{
 	public:
-		bool running = false; //Represents the server's state
+		bool running; //Represents the server's state
 		TcpSocket ListenSocket; //Listen Socket for TCP Connections
 		std::vector<Client> clients; //List of connected clients
 
@@ -19,7 +19,10 @@ namespace Network
 		void Start();
 		/// <summary>Logic for server(Listen, Accept, Send, Receive)</summary>
 		void Update();
-		/// <summary>Stops the listening and closes the service</summary>
+		/// <summary>Checks for errors that occurred during listening</summary>
+		NetResult CheckForErrors();
+		void ListenAndAccept(int backlog);
+		/// <summary>Stops listening and closes the service</summary>
 		void Stop();
 
 		int GetNext();
@@ -27,7 +30,10 @@ namespace Network
 
 	private:
 		int port; //Port the server listens on
-		int maxPlayers = 0; //Max accepted players on the server
-		bool listen = false; //Is the server listening for new connections or not
+		int maxPlayers; //Max accepted players on the server
+		bool listening; //Is the server listening for new connections or not
+		Endpoint endpoint;
+
+		std::vector<std::future<int>> Errors;
 	};
 }

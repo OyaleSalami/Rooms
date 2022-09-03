@@ -16,7 +16,7 @@ namespace Network
 		{
 			Debug::Log("Socket created", false);
 			running = true;
-			listen = true;
+			listening = true;
 
 			//Bind Socket
 			if (ListenSocket.Bind(Endpoint("0.0.0.0", port)) != NetResult::Success)
@@ -28,24 +28,39 @@ namespace Network
 		{
 			Debug::Error("Failed to create socket");
 		}
+
+		//Listen asynchronuously
+		std::future<int> result = std::async(std::launch::async, listen, ListenSocket.handle, 100);
+		Debug::Log("Socket successfully listening on port: " + std::to_string(port), false);
+	}
+
+	NetResult Server::CheckForErrors()
+	{
+		for (auto &error: Errors)
+		{
+			int err = error.get();
+
+			if (err != 0)
+			{
+				int err = WSAGetLastError();
+				Debug::Error("Error listening and accepting clients: " + std::to_string(err));
+
+				return NetResult::Error;
+			}
+		}
+
+		Errors.clear();
+		return NetResult::Success;
 	}
 
 	void Server::Update()
 	{
 		//Listen
-		if (ListenSocket.Listen(Endpoint("0.0.0.0", port)) == NetResult::Success)
+		if (CheckForErrors() == NetResult::Success)
 		{
-			Debug::Log("Socket successfully listening on port: " + std::to_string(port), false);
-			
 			TcpSocket newConnection;
 			
 			int _id = GetNext();
-			if (_id == -1)
-			{
-				Debug::Log("Max connections have been accepted", false);
-				listen = false;
-				return;
-			}
 
 			clients[_id].id = _id; //Set the id for the Client class
 
@@ -68,7 +83,7 @@ namespace Network
 	void Server::Stop()
 	{
 		running = false;
-		listen = false;
+		listening = false;
 		ListenSocket.Close();
 	}
 

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <thread>
+#include <future>
+
+
 #include "Endpoint.h"
 #include "Message.h"
 #include "Globals.h"
@@ -12,6 +16,8 @@ namespace Network
 	class TcpSocket
 	{
 	public:
+		SOCKET handle = INVALID_SOCKET;
+
 		TcpSocket(SOCKET = INVALID_SOCKET);
 		NetResult Create();
 		NetResult Close();
@@ -29,6 +35,6 @@ namespace Network
 
 	private:
 		int id;
-		SOCKET handle = INVALID_SOCKET;
+		//std::thread listen_thread(Listen, Endpoint, int);
 	};
 }

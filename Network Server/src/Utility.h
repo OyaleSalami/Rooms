@@ -15,7 +15,7 @@ namespace Network
 			IPv4
 		};
 
-		enum class NetResult
+		enum class NetResult:int
 		{
 			Success,
 			Error
