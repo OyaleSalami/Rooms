@@ -2,11 +2,13 @@
 
 namespace Network
 {
-	Server::Server(const int &_maxPlayers, const int &_port)
+	Server::Server(const int& _maxPlayers, const int& _port, const std::string& address)
 	{
 		maxPlayers = _maxPlayers;
 		clients.resize(_maxPlayers); //Set the list to take (maxPlayers) no of players
-		port = _port;
+		endpoint = Endpoint(address.c_str(), _port); //Set the endpoint of the server
+		listening = false;
+		running = false;
 	}
 
 	void Server::Start()
@@ -19,7 +21,7 @@ namespace Network
 			listening = true;
 
 			//Bind Socket
-			if (ListenSocket.Bind(Endpoint("0.0.0.0", port)) != NetResult::Success)
+			if (ListenSocket.Bind(endpoint) != NetResult::Success)
 			{
 				Debug::Error("Failed to bind socket");
 			}
@@ -31,37 +33,17 @@ namespace Network
 
 		//Listen asynchronuously
 		std::future<int> result = std::async(std::launch::async, listen, ListenSocket.handle, 100);
-		Debug::Log("Socket successfully listening on port: " + std::to_string(port), false);
-	}
-
-	NetResult Server::CheckForErrors()
-	{
-		for (auto &error: Errors)
-		{
-			int err = error.get();
-
-			if (err != 0)
-			{
-				int err = WSAGetLastError();
-				Debug::Error("Error listening and accepting clients: " + std::to_string(err));
-
-				return NetResult::Error;
-			}
-		}
-
-		Errors.clear();
-		return NetResult::Success;
 	}
 
 	void Server::Update()
 	{
 		//Listen
-		if (CheckForErrors() == NetResult::Success)
+		if (ListenSocket.Listen(endpoint) == NetResult::Success)
 		{
-			TcpSocket newConnection;
+			Debug::Log("Socket successfully listening on port: " + std::to_string(endpoint.GetPort()), false);
 			
-			int _id = GetNext();
-
+			TcpSocket newConnection;
+			int _id = GetNext(); //Get the next free client space
 			clients[_id].id = _id; //Set the id for the Client class
 
 			//Accept
@@ -84,6 +66,7 @@ namespace Network
 	{
 		running = false;
 		listening = false;
+		endpoint.Reset();
 		ListenSocket.Close();
 	}
 

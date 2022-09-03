@@ -104,18 +104,12 @@ namespace Network
 		return addr;
 	}
 
-	void Endpoint::Print()
+	void Endpoint::Reset()
 	{
-		Debug::Log("IP version: IPv4", false);
-		Debug::Log("Hostname: " + hostname, false);
-		Debug::Log("IP: " + address, false);
-		Debug::Log("Port: " + port, false);
-		Debug::Log("IP bytes: ", false);
-
-		for (auto& digit : ip_bytes)
-		{
-			std::string a = "" + (int)digit;
-			Debug::Log(a, false);
-		}
+		port = 0;
+		address.clear();
+		hostname.clear();
+		ip_bytes.clear();
+		ipversion = IPVersion::Invalid;
 	}
 }

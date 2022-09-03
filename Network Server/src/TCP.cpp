@@ -211,22 +211,18 @@ namespace Network
 
 	NetResult TcpSocket::Recv(Message& message)
 	{
-		message.Clear();
-		uint16_t encodedSize = 0;
+		//message.Clear();
+		int byteSize = 48;
+		message.buffer.resize(byteSize);
 
-		NetResult result = RecvAll(&encodedSize, sizeof(uint16_t));
+		NetResult result = RecvAll(&message.buffer[0], byteSize);
 		if (result != NetResult::Success)
+		{
+			Debug::Error("Error receiving data: ");
 			return NetResult::Error;
+		}
 
-		uint16_t bufferSize = ntohs(encodedSize);
-		if (bufferSize > MAX_MSG_SIZE)
-			return NetResult::Error;
-
-		message.buffer.resize(bufferSize);
-		result = RecvAll(&message.buffer[0], bufferSize);
-		if (result != NetResult::Success)
-			return NetResult::Error;
-
+		Debug::Log("Data received good: ");
 		return NetResult::Success;
 	}
 

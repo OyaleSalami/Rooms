@@ -56,8 +56,8 @@ namespace Rooms
         /// <param name="message">Message to bo sent</param>
         public void Send(Message.Mode mode, Message message)
         {
-            message.Add(NetworkId); //Adds the client's ID to the message
-            message.Seal(); //Readies the message for sending
+            //message.Add(NetworkId); //Adds the client's ID to the message
+            //message.Seal(); //Readies the message for sending
 
             if (mode == Message.Mode.Tcp)
             {

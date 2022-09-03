@@ -25,7 +25,7 @@ namespace Network
 		unsigned short GetPort();
 		sockaddr_in GetSockaddrIPv4();
 		IPVersion GetIPVersion();
-		void Print();
+		void Reset();
 
 	private:
 		unsigned short port = 0; //Port of the remote host

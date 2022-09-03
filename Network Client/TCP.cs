@@ -102,7 +102,8 @@ namespace Rooms.Transport
                 try
                 {
                     // Start sending data to the remote host
-                    stream.BeginWrite(message.Unpack(), 0, message.Length(), null, null); 
+                    stream.BeginWrite(message.Unpack(), 0, message.Length(), null, null);
+                    Console.WriteLine("Sending...");
                 }
                 catch (Exception e)
                 {
