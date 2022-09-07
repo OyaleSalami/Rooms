@@ -21,6 +21,17 @@ namespace Network
 		closesocket(udp);
 	}
 
+	void Client::Update()
+	{
+		if (tcp.handle != INVALID_SOCKET)
+		{
+		}
+		else
+		{
+			Debug::Error("Invalid Client Socket: " + std::to_string(id));
+		}
+	}
+
 	int Client::GetId()
 	{
 		return id;

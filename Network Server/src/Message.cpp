@@ -183,7 +183,7 @@ namespace Network
 	void Message::Clear()
 	{
 		buffer.clear();
-		type == MessageType::Invalid;
+		type = MessageType::Invalid;
 		readHead = 0;
 	}
 }

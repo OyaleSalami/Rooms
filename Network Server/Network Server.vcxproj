@@ -165,6 +165,7 @@
     <ClInclude Include="src\Endpoint.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\Message.h" />
+    <ClInclude Include="src\MessageHandler.h" />
     <ClInclude Include="src\Server.h" />
     <ClInclude Include="src\TCP.h" />
     <ClInclude Include="src\UDP.h" />

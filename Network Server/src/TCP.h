@@ -7,6 +7,7 @@
 #include "Endpoint.h"
 #include "Message.h"
 #include "Globals.h"
+#include "MessageHandler.h"
 
 using namespace Network::Util;
 
@@ -32,9 +33,5 @@ namespace Network
 		NetResult Recv(Message& message);
 		NetResult Send(Message& message);
 		SOCKET GetHandle();
-
-	private:
-		int id;
-		//std::thread listen_thread(Listen, Endpoint, int);
 	};
 }

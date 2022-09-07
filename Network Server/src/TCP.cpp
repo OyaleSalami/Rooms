@@ -32,7 +32,7 @@ namespace Network
 
 	NetResult TcpSocket::Close()
 	{
-		if (handle = INVALID_SOCKET)
+		if (handle == INVALID_SOCKET)
 		{
 			//Socket is probably closed already
 			return NetResult::Error;
@@ -137,14 +137,19 @@ namespace Network
 	NetResult TcpSocket::Recv(void* destination, int numberOfBytes, int& bytesReceived)
 	{
 		bytesReceived = recv(handle, (char*)destination, numberOfBytes, NULL);
-		if (bytesReceived == 0) //Connection closed gracefully
+		
+		//Connection closed gracefully
+		if (bytesReceived == 0) 
 		{
+			Debug::Error("Connection closed gracefully while receiving data.");
 			return NetResult::Error;
 		}
 
 		if (bytesReceived == SOCKET_ERROR)
 		{
 			int error = WSAGetLastError();
+			Debug::Error("Error recieving data: " + std::to_string(error));
+
 			return NetResult::Error;
 		}
 
@@ -196,33 +201,34 @@ namespace Network
 
 	NetResult TcpSocket::Send(Message& message)
 	{
-		uint16_t encodedMessageSize = htons(message.buffer.size());
+		NetResult result = SendAll(message.buffer.data(), message.buffer.size());
 
-		NetResult result = SendAll(&encodedMessageSize, sizeof(uint16_t));
 		if (result != NetResult::Success)
+		{
 			return NetResult::Error;
-
-		result = SendAll(message.buffer.data(), message.buffer.size());
-		if (result != NetResult::Success)
-			return NetResult::Error;
+		}
 
 		return NetResult::Success;
 	}
 
 	NetResult TcpSocket::Recv(Message& message)
 	{
-		//message.Clear();
-		int byteSize = 48;
+		int byteSize = 64;
+
+		message.Clear();
 		message.buffer.resize(byteSize);
 
-		NetResult result = RecvAll(&message.buffer[0], byteSize);
-		if (result != NetResult::Success)
+		while (handle != INVALID_SOCKET)
 		{
-			Debug::Error("Error receiving data: ");
-			return NetResult::Error;
+			//Try to recieve from  the remote client
+			NetResult result = RecvAll(&message.buffer[0], byteSize);
+			
+			if (result != NetResult::Success)
+			{
+				Debug::Error("Error receiving data: ");
+			}
 		}
 
-		Debug::Log("Data received good: ");
 		return NetResult::Success;
 	}
 
