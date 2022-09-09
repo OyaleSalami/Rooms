@@ -47,12 +47,12 @@ namespace Rooms
         /// <summary>Inbuilt enum to identify the type of enum</summary>
         public enum Type
         {
+            /// <summary>Identifies a chat message</summary>
+            chat = 1,
             /// <summary>Identifies an authentication request</summary>
-            auth = 1,
+            auth,
             /// <summary>Returned by the server/client if authentication failed</summary>
             authFailed,
-            /// <summary>Identifies a chat message</summary>
-            chat,
             /// <summary>Identifies a ping check message</summary>
             ping,
             /// <summary>Identifies a custom message</summary>

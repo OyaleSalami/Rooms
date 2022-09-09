@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Rooms.Util;
+using System;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Rooms.Transport
 {
@@ -16,7 +14,7 @@ namespace Rooms.Transport
 
         private byte[] buffer;
         private NetworkStream stream;
-
+        
         ///<summary>Instantiates the socket</summary>
         public TCP()
         {
@@ -39,7 +37,7 @@ namespace Rooms.Transport
         private void HandleConnectionCallback(IAsyncResult connection)
         {
             //End connection attempt
-            socket.EndConnect(connection);
+             socket.EndConnect(connection);
 
             Console.WriteLine("TCP Connection State: " + socket.Connected);
            
@@ -69,8 +67,8 @@ namespace Rooms.Transport
                     
                     Array.Copy(buffer, data, bytesRead);
 
+                    buffer = new byte[Utility.MAX_MSG_SIZE]; //Reset the buffer before handling data
                     HandleData(data); //Handles (data)
-                    buffer = new byte[socket.ReceiveBufferSize];
                 }
 
                 //Starts receiving data asynchronously from the remote host again
@@ -85,12 +83,15 @@ namespace Rooms.Transport
 
         private void HandleData(byte[] data)
         {
-            Message message = new Message(data);
-            string text = message.ReadString();
+            Message message = new Message(data); //Represent the data as a packet
 
-            Console.WriteLine("Data Handled: ");
+            int type = message.ReadInt(); //Get the type of message
 
-            Console.WriteLine(text);
+            Console.WriteLine("Type: " + type);
+
+            Program.gameClient.messageHandlers[type](message);
+
+            Console.WriteLine("Data Handled");
         }
 
         /// <summary>Sends a message to the remote host it is bound to</summary>
@@ -101,7 +102,6 @@ namespace Rooms.Transport
             {
                 try
                 {
-                    // Start sending data to the remote host
                     stream.BeginWrite(message.Unpack(), 0, message.Length(), null, null);
                     Console.WriteLine("Sending...");
                 }
@@ -116,6 +116,7 @@ namespace Rooms.Transport
         ///<summary>Disconnects the socket from the server it was bound to</summary>
         public void Disconnect()
         {
+            buffer = new byte[Utility.MAX_MSG_SIZE];
             stream = null;
             socket.Close();
             socket = null;

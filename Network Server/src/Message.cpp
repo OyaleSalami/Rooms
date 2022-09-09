@@ -9,7 +9,8 @@ namespace Network
 
 	Message::Message(const MessageType &_type)
 	{
-		Clear(); //Reset the whole message 
+		Clear(); //Reset the whole message
+		Write((int)type);
 		type = _type; //Set the Message type
 	}
 
@@ -93,7 +94,7 @@ namespace Network
 		buffer.insert(buffer.end(), (char*)data, (char*)data + size);
 	}
 
-	#pragma endregion
+	#pragma endregion For Writing to a message
 
 	#pragma region Reading Functions
 
@@ -178,12 +179,47 @@ namespace Network
 		}
 	}
 
-	#pragma endregion
+	#pragma endregion For Reading from a message
 
 	void Message::Clear()
 	{
 		buffer.clear();
-		type = MessageType::Invalid;
 		readHead = 0;
 	}
+
+	bool Message::Handle()
+	{
+		
+		try
+		{
+			int type;
+			Read(type); //Read out the packet's type
+			Debug::Log("Type of message: " + std::to_string(type));
+
+			if (type == (int)MessageType::Chat)
+			{
+				std::string chat;
+				Read(chat);
+
+				Debug::Log("Chat from client: " + chat);
+				return true;
+			}
+			if (type == (int)MessageType::Position)
+			{
+				std::string chat;
+				Read(chat);
+
+				Debug::Log("Chat from client: " + chat);
+				return true;
+			}
+
+		}
+		catch (...)
+		{
+			Debug::Error("Unable to handle the message");
+			return false;
+		}
+		return false;
+	}
+
 }

@@ -3,19 +3,20 @@ using Rooms;
 
 class Program
 {
-    static Client gameClient = new Client();
+    public static Client gameClient = new Client();
+
     static void Main(string[] args)
     {
         gameClient.Connect(new Endpoint(8088, "127.0.0.1"));
 
-        Console.Read();
-        Console.WriteLine("Hello World");
-        
+        gameClient.AddHandler(IMessage.Type.chat, Handler.Chat);
+
         while (true)
         {
-            Console.Read();
-            Message message = new Message();
-            message.Add("Data received good:: ");
+            string text = Console.ReadLine();
+            Message message = new Message(IMessage.Type.chat);
+            message.Add(text);
+            message.Seal();
 
             gameClient.Send(IMessage.Mode.Tcp, message);
             Console.WriteLine("Sent");

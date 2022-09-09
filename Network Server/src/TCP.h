@@ -1,9 +1,5 @@
 #pragma once
 
-#include <thread>
-#include <future>
-
-
 #include "Endpoint.h"
 #include "Message.h"
 #include "Globals.h"
@@ -19,7 +15,7 @@ namespace Network
 	public:
 		SOCKET handle = INVALID_SOCKET;
 
-		TcpSocket(SOCKET = INVALID_SOCKET);
+		TcpSocket(const SOCKET& = INVALID_SOCKET);
 		NetResult Create();
 		NetResult Close();
 		NetResult Bind(Endpoint endpoint);
@@ -32,6 +28,9 @@ namespace Network
 		NetResult RecvAll(void* destination, int numberOfBytes);
 		NetResult Recv(Message& message);
 		NetResult Send(Message& message);
+		/// <summary>Sets the socket's blocking state</summary>
+		/// <param name="value">True: Non-Blocking, False: Blocking</param>
+		NetResult Set(bool value);
 		SOCKET GetHandle();
 	};
 }

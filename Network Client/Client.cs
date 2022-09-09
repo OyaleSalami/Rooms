@@ -20,12 +20,12 @@ namespace Rooms
         /// <summary>A template for functions that handle messages</summary>
         /// <param name="message">Type of Message to be handled</param>
         public delegate void MessageHandler(Message message);
-        private Dictionary<Message.Type, MessageHandler> messageHandlers;
+        public Dictionary<int, MessageHandler> messageHandlers;
 
         ///<summary>Initializes the message handler dictionary</summary>
         private void Init()
         {
-            messageHandlers = new Dictionary<Message.Type, MessageHandler>();
+            messageHandlers = new Dictionary<int, MessageHandler>();
         }
 
         /// <summary>Attempt to connect the server to a client(TCP and UDP)</summary>
@@ -92,12 +92,12 @@ namespace Rooms
         /// <returns>True if a handler for the function is added, False if one exists already</returns>
         public bool AddHandler(Message.Type type, MessageHandler handler)
         {
-            if (messageHandlers.ContainsKey(type))
+            if (messageHandlers.ContainsKey((int)type))
             {
                 return false;
             }
 
-            messageHandlers.Add(type, handler);
+            messageHandlers.Add((int)type, handler);
             return true;
         }
 
@@ -106,9 +106,9 @@ namespace Rooms
         /// <returns>True if a handler for the function is removed, False if it doesn't exists</returns>
         public bool RemoveHandler(Message.Type type)
         {
-            if (messageHandlers.ContainsKey(type))
+            if (messageHandlers.ContainsKey((int)type))
             {
-                messageHandlers.Remove(type);
+                messageHandlers.Remove((int)type);
                 return true;
             }
             return false;

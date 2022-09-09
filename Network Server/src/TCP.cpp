@@ -2,7 +2,7 @@
 
 namespace Network
 {
-	TcpSocket::TcpSocket(SOCKET _handle)
+	TcpSocket::TcpSocket(const SOCKET& _handle)
 	{
 		handle = _handle;
 	}
@@ -74,7 +74,7 @@ namespace Network
 		if (result != 0)
 		{
 			int error = WSAGetLastError();
-			Debug::Error("Error while listening: " + error);
+			Debug::Error("Error while listening: " + std::to_string(error));
 
 			return NetResult::Error;
 		}
@@ -92,6 +92,8 @@ namespace Network
 		if (newConnectionHandle == INVALID_SOCKET)
 		{
 			int error = WSAGetLastError();
+
+			Debug::Error("Failed to accept the new connection: " + std::to_string(error));
 			return NetResult::Error;
 		}
 
@@ -229,6 +231,37 @@ namespace Network
 			}
 		}
 
+		return NetResult::Success;
+	}
+
+	NetResult TcpSocket::Set(bool value)
+	{
+		if (value == true) //Non-Blocking
+		{
+			unsigned long i = 1;
+			int result = ioctlsocket(handle, FIONBIO, &i);
+
+			if (result == SOCKET_ERROR)
+			{
+				int error = WSAGetLastError();
+				Debug::Error("Failed to set newConnection as non Blocking: " + std::to_string(error));
+				return NetResult::Error;
+			}
+		}
+
+		if (value == false) //Blocking
+		{
+			unsigned long i = 0;
+			int result = ioctlsocket(handle, FIONBIO, &i);
+
+			if (result == SOCKET_ERROR)
+			{
+				int error = WSAGetLastError();
+				Debug::Error("Failed to set newConnection as Blocking: " + std::to_string(error));
+				return NetResult::Error;
+			}
+		}
+		
 		return NetResult::Success;
 	}
 

@@ -4,7 +4,9 @@
 //#include <winsock.h>
 
 #include <string>
+#include <vector>
 #include <stdint.h>
+
 
 #include "Globals.h"
 #include "Utility.h"
@@ -15,10 +17,16 @@ namespace Network
 	using namespace Util;
 
 	///<summary>Inbuilt enum to identify the type of message</summary>
-	enum class MessageType:uint16_t
+	enum class MessageType:int
 	{
 		/// <summary>Identifies a chat message</summary>
 		Chat = 1,
+		/// <summary>Connects the player to the game  and spawn it</summary>
+		Connect,
+		/// <summary>Disconnects the player from the game  and destroys it</summary>
+		Disconnect,
+		/// <summary>Position of the Player</summary>
+		Position,
 		/// <summary>Identifies an authentication request</summary>
 		Auth,
 		/// <summary>Returned by the server/client if authentication failed</summary>
@@ -52,33 +60,34 @@ namespace Network
 
 		//Message Constructors();
 		Message();
-		Message(const MessageType &_type);
-		Message(char* _data, const int &length);
+		Message(const MessageType& _type);
+		Message(char* _data, const int& length);
 
-		void Write(const char &value);
-		void Write(const bool &value);
-		void Write(const short &value);
-		void Write(const int &value);
-		void Write(const long &value);
-		void Write(const float &value);
-		void Write(const double &value);
-		void Write(const std::string &value);
+		void Write(const char& value);
+		void Write(const bool& value);
+		void Write(const short& value);
+		void Write(const int& value);
+		void Write(const long& value);
+		void Write(const float& value);
+		void Write(const double& value);
+		void Write(const std::string& value);
 
-		void Read(char &value, const bool &moveHead = true);
-		void Read(bool &value, const bool &moveHead = true);
-		void Read(short &value, const bool &moveHead = true);
-		void Read(int &value, const bool &moveHead = true);
-		void Read(long &value, const bool &moveHead = true);
-		void Read(float &value, const bool &moveHead = true);
-		void Read(double &value, const bool &moveHead = true);
-		void Read(std::string &value, const bool& moveHead = true);
+		void Read(char& value, const bool& moveHead = true);
+		void Read(bool& value, const bool& moveHead = true);
+		void Read(short& value, const bool& moveHead = true);
+		void Read(int& value, const bool& moveHead = true);
+		void Read(long& value, const bool& moveHead = true);
+		void Read(float& value, const bool& moveHead = true);
+		void Read(double& value, const bool& moveHead = true);
+		void Read(std::string& value, const bool& moveHead = true);
 
 		void Length();
 		void InsertLength();
 		void ResetReadHead();
-		void Clear(); 
+		void Clear();
 		void Append(const void* data, uint32_t size);
-		
+		bool Handle();
+
 	private:
 		int readHead;
 	};

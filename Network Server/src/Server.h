@@ -1,18 +1,18 @@
 #pragma once
 
+#include <vector>
 #include "TCP.h"
 #include "Client.h"
-#include <vector>
 
 namespace Network
 {
 	class Server
 	{
 	public:
-		bool running; //Represents the server's state
-		bool listening; //Is the server listening for new connections or not
-		TcpSocket ListenSocket; //Listen Socket for TCP Connections
-		std::vector<Client> clients; //List of connected clients
+		bool running; ///Represents the server's state
+		bool listening; ///Is the server listening for new connections or not
+		TcpSocket ListenSocket; ///Listen Socket for TCP Connections
+		std::vector<Client> clients; ///List of connected clients
 
 		/// <summary>Default constructor: Sets max player and port</summary>
 		Server(const int& maxPlayers, const int &_port, const std::string& address);
@@ -22,12 +22,14 @@ namespace Network
 		void Update();
 		/// <summary>Stops listening and closes the service</summary>
 		void Stop();
-
-		int GetNext();
+		/// <summary>Sends the message to all connected clients over a particular transport</summary>
 		void SendToAll(SendMode mode, const Message &message);
+		/// <summary>Disconnects a client from the server</summary>
+		void DisconnectClient(int id, std::string note);
 
 	private:
-		int maxPlayers; //Max accepted players on the server
-		Endpoint endpoint; //Endpoint of the server
+		std::vector<WSAPOLLFD> clientFd;
+		int maxPlayers; ///Max accepted players on the server
+		Endpoint endpoint; ///Endpoint of the server
 	};
 }
