@@ -1,10 +1,5 @@
 ﻿namespace Rooms.Util
 {
-    class Utility
-    { 
-        public const int MAX_MSG_SIZE = 2048;
-    };
-
     public class Vector2
     {
         public float x, y;

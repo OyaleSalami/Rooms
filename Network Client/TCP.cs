@@ -1,5 +1,4 @@
-﻿using Rooms.Util;
-using System;
+﻿using System;
 using System.Net.Sockets;
 
 namespace Rooms.Transport
@@ -14,14 +13,14 @@ namespace Rooms.Transport
 
         private byte[] buffer;
         private NetworkStream stream;
-        
+
         ///<summary>Instantiates the socket</summary>
         public TCP()
         {
             socket = new TcpClient();
             buffer = new byte[socket.ReceiveBufferSize];
         }
-        
+
         /// <summary>Attempt to connect to the bound endpoint</summary>
         ///<param name="ep">Endpoint of the remote host</param>
         public void Connect(Endpoint ep)
@@ -37,18 +36,18 @@ namespace Rooms.Transport
         private void HandleConnectionCallback(IAsyncResult connection)
         {
             //End connection attempt
-             socket.EndConnect(connection);
+            socket.EndConnect(connection);
 
             Console.WriteLine("TCP Connection State: " + socket.Connected);
-           
+
             //Set the connection state of the TCP client
-            isConnected = true; 
+            isConnected = true;
 
             //Get the network stream for sending and receiving data
             stream = socket.GetStream();
 
             //Starts receiving data asynchronously from the server
-            stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+            stream.BeginRead(buffer, 0, Message.MAX_MSG_SIZE, HandleDataCallback, null);
         }
 
         /// <summary>Handle the incoming data from the remote client</summary>
@@ -59,22 +58,22 @@ namespace Rooms.Transport
             {
                 //Get the number of bytes read from the stream
                 int bytesRead = stream.EndRead(connection);
-                
-                if(bytesRead >= 0)
+
+                if (bytesRead >= 0)
                 {
                     //If data was received from the remote host
                     byte[] data = new byte[bytesRead];
-                    
+
                     Array.Copy(buffer, data, bytesRead);
 
-                    buffer = new byte[Utility.MAX_MSG_SIZE]; //Reset the buffer before handling data
+                    buffer = new byte[Message.MAX_MSG_SIZE]; //Reset the buffer before handling data
                     HandleData(data); //Handles (data)
                 }
 
                 //Starts receiving data asynchronously from the remote host again
-                stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+                stream.BeginRead(buffer, 0, Message.MAX_MSG_SIZE, HandleDataCallback, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Error receiving data: " + ex);
                 Disconnect();
@@ -116,7 +115,7 @@ namespace Rooms.Transport
         ///<summary>Disconnects the socket from the server it was bound to</summary>
         public void Disconnect()
         {
-            buffer = new byte[Utility.MAX_MSG_SIZE];
+            buffer = new byte[Message.MAX_MSG_SIZE];
             stream = null;
             socket.Close();
             socket = null;

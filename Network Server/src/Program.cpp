@@ -19,8 +19,8 @@ int main()
             std::string text;
             Message message(MessageType::Chat);
             std::cin >> text;
-
             message.Write(text);
+
             server.SendToAll(SendMode::Tcp, message);
         }
     }

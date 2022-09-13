@@ -27,17 +27,17 @@ namespace Rooms.Transport
             endpoint = ep;
             socket = new UdpClient();
         }
-        
+
         /// <summary>Attempts to connect to the bound remote host</summary>
         public void Connect()
         {
             socket.Connect(new IPEndPoint(IPAddress.Parse(endpoint.address), endpoint.port));
         }
-        
+
         /// <summary>Send a message to the bound remote host (Unreliable)</summary>
         /// <param name="message">Message to send</param>
         public void Send(Message message)
-        { 
+        {
             if (socket != null)
             {
                 try
