@@ -20,6 +20,7 @@ int main()
             Message message(MessageType::Chat);
             std::cin >> text;
             message.Write(text);
+            message.InsertLength();
 
             server.SendToAll(SendMode::Tcp, message);
         }

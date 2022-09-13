@@ -56,6 +56,7 @@ namespace Network
 	{
 	public:
 		MessageType type;
+		bool sealed = false;
 		std::string buffer = "";
 
 		//Message Constructors();
@@ -81,7 +82,7 @@ namespace Network
 		void Read(double& value, const bool& moveHead = true);
 		void Read(std::string& value, const bool& moveHead = true);
 
-		void Length();
+		int Length();
 		void InsertLength();
 		void ResetReadHead();
 		void Clear();

@@ -84,13 +84,20 @@ namespace Rooms.Transport
         {
             Message message = new Message(data); //Represent the data as a packet
 
+            int size = message.ReadInt(); //Get the size of message
             int type = message.ReadInt(); //Get the type of message
 
+            Console.WriteLine("Size: " + size);
             Console.WriteLine("Type: " + type);
 
-            Program.gameClient.messageHandlers[type](message);
-
-            Console.WriteLine("Data Handled");
+            if(Program.gameClient.messageHandlers.ContainsKey(type))
+            {
+                Program.gameClient.messageHandlers[type](message);
+            }
+            else
+            {
+                Console.WriteLine("There is no handler for this specific kind of message");
+            }
         }
 
         /// <summary>Sends a message to the remote host it is bound to</summary>

@@ -20,14 +20,17 @@ namespace Network
 		void Start();
 		/// <summary>Logic for server(Listen, Accept, Send, Receive)</summary>
 		void Update();
+		/// <summary>Sends back data received from a single client to all other clients</summary>
+		void Echo();
 		/// <summary>Stops listening and closes the service</summary>
 		void Stop();
 		/// <summary>Sends the message to all connected clients over a particular transport</summary>
-		void SendToAll(SendMode mode, const Message &message);
+		void SendToAll(SendMode mode, Message &message);
 		/// <summary>Disconnects a client from the server</summary>
 		void DisconnectClient(int id, std::string note);
 
 	private:
+		std::vector<Message> echoBuffer;
 		std::vector<WSAPOLLFD> clientFd;
 		int maxPlayers; ///Max accepted players on the server
 		Endpoint endpoint; ///Endpoint of the server

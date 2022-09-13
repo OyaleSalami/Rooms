@@ -24,7 +24,7 @@ namespace Network
 		closesocket(udp);
 	}
 
-	void Client::Update()
+	Message Client::Update()
 	{
 		//Reset the buffer
 
@@ -66,6 +66,8 @@ namespace Network
 			{
 				Debug::Error("Unable to handle messsage!");
 			}
+
+			return msg;
 		}
 	}
 

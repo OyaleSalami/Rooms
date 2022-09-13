@@ -32,7 +32,7 @@ namespace Network
 		/// <param name="_udp">UdpSocket of the remote host</param>
 		Client(SOCKET &_tcp, SOCKET &_udp);
 
-		void Update(); //Receive data from the server
+		Message Update(); //Receive data from the server
 		void Disconnect(std::string note); //Disconnnect client from the server
 
 		int GetId();

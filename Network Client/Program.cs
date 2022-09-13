@@ -5,11 +5,11 @@ class Program
 {
     public static Client gameClient = new Client();
 
-    static void Main(string[] args)
+    static void Main()
     {
         gameClient.Connect(new Endpoint(8088, "127.0.0.1"));
 
-        gameClient.AddHandler(IMessage.Type.chat, Handler.Chat);
+        gameClient.AddHandler(Message.Type.chat, Handler.Chat);
 
         while (true)
         {

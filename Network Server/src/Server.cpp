@@ -90,10 +90,30 @@ namespace Network
 				//Handling data
 				if (clientFd[i].revents & POLLRDNORM)
 				{
-					current.Update(); //Update the client(Receive data)
+					echoBuffer.push_back(current.Update()); //Update the client(Receive data)
 				}
 			}
 		}
+
+		Echo(); //Send back the data received 
+	}
+
+	void Server::Echo()
+	{
+		try
+		{
+			for (auto& message : echoBuffer)
+			{
+				SendToAll(SendMode::Tcp, message);
+			}
+		}
+		catch (...)
+		{
+			Debug::Error("Failed while trying to echo back received messages");
+			return;
+		}
+
+		echoBuffer.clear(); //Clear the buffer if all messages were sent
 	}
 
 	void Server::Stop()
@@ -104,16 +124,17 @@ namespace Network
 		ListenSocket.Close();
 	}
 
-	void Server::SendToAll(SendMode mode, const Message& message)
+	void Server::SendToAll(SendMode mode, Message& message)
 	{
 		//TODO: Only TCP Implemented for now
 		if (mode == SendMode::Tcp)
 		{
 			for (unsigned int i = 0; i < clients.size(); i++)
 			{
+				//Send the message to each connected client
 				if (clients[i].tcp.handle != INVALID_SOCKET)
 				{
-					clients[i].tcp.SendAll(message.buffer.data(), message.buffer.size());
+					clients[i].tcp.Send(message);
 				}
 			}
 		}
