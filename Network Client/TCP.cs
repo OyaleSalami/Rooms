@@ -96,7 +96,7 @@ namespace Rooms.Transport
             }
             else
             {
-                Console.WriteLine("There is no handler for this specific kind of message");
+                Console.WriteLine("There is no handler for this type of message");
             }
         }
 

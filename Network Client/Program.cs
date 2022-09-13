@@ -14,11 +14,11 @@ class Program
         while (true)
         {
             string text = Console.ReadLine();
-            Message message = new Message(IMessage.Type.chat);
+            Message message = new Message(Message.Type.chat);
             message.Add(text);
             message.Seal();
 
-            gameClient.Send(IMessage.Mode.Tcp, message);
+            gameClient.Send(Message.Mode.Tcp, message);
             Console.WriteLine("Sent");
         }
     }
