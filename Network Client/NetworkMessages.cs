@@ -1,16 +1,19 @@
-﻿using System;
+﻿using Rooms.Util;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Rooms.Util;
 
 namespace Rooms
 {
     /// <summary>Represents a message to be sent over the network</summary>
     public class Message : IMessage
     {
+        /// <summary>Maximum size of a message</summary>
+        public const int MAX_MSG_SIZE = 2048;
+
         ///<summary>Empty constructor</summary>
         public Message()
-        { 
+        {
             buffer = new List<byte>();
             ResetReadHead();
         }
@@ -38,21 +41,21 @@ namespace Rooms
     public abstract class IMessage
     {
         ///To indicate the postion of the read head
-        protected int readHead;   
+        protected int readHead;
         ///To lock/unlock writing access
-        protected bool writeable = true; 
+        protected bool writeable = true;
         ///The array where all the data is stored
-        protected List<byte> buffer; 
+        protected List<byte> buffer;
 
         /// <summary>Inbuilt enum to identify the type of enum</summary>
         public enum Type
         {
+            /// <summary>Identifies a chat message</summary>
+            chat = 1,
             /// <summary>Identifies an authentication request</summary>
-            auth = 1,
+            auth,
             /// <summary>Returned by the server/client if authentication failed</summary>
             authFailed,
-            /// <summary>Identifies a chat message</summary>
-            chat,
             /// <summary>Identifies a ping check message</summary>
             ping,
             /// <summary>Identifies a custom message</summary>
@@ -94,20 +97,20 @@ namespace Rooms
             }
             return false;
         }
-        
+
         /// <returns>The number of bytes in the message</returns>
         public int Length()
         {
             return buffer.Count;
         }
-        
+
         /// <summary>Clears the message and reset the read head</summary>
         public void Clear()
         {
             buffer.Clear();
             ResetReadHead();
         }
-        
+
         /// <summary>Adds the length at the front of the message and locks writing access</summary>
         public void Seal()
         {
@@ -123,7 +126,7 @@ namespace Rooms
         /// <exception cref="Exception"> Writing is locked</exception>
         public void Add(byte value)
         {
-            if(writeable == true)
+            if (writeable == true)
             {
                 buffer.Add(value);
             }
@@ -297,7 +300,7 @@ namespace Rooms
         /// <exception cref="Exception"> Writing is locked</exception>
         public void Add(byte[] value)
         {
-            if(writeable == true)
+            if (writeable == true)
             {
                 Add(value.Length);
                 buffer.AddRange(value);

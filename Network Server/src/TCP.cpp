@@ -2,7 +2,7 @@
 
 namespace Network
 {
-	TcpSocket::TcpSocket(SOCKET _handle)
+	TcpSocket::TcpSocket(const SOCKET& _handle)
 	{
 		handle = _handle;
 	}
@@ -32,7 +32,7 @@ namespace Network
 
 	NetResult TcpSocket::Close()
 	{
-		if (handle = INVALID_SOCKET)
+		if (handle == INVALID_SOCKET)
 		{
 			//Socket is probably closed already
 			return NetResult::Error;
@@ -74,7 +74,7 @@ namespace Network
 		if (result != 0)
 		{
 			int error = WSAGetLastError();
-			Debug::Error("Error while listening: " + error);
+			Debug::Error("Error while listening: " + std::to_string(error));
 
 			return NetResult::Error;
 		}
@@ -92,6 +92,8 @@ namespace Network
 		if (newConnectionHandle == INVALID_SOCKET)
 		{
 			int error = WSAGetLastError();
+
+			Debug::Error("Failed to accept the new connection: " + std::to_string(error));
 			return NetResult::Error;
 		}
 
@@ -137,14 +139,19 @@ namespace Network
 	NetResult TcpSocket::Recv(void* destination, int numberOfBytes, int& bytesReceived)
 	{
 		bytesReceived = recv(handle, (char*)destination, numberOfBytes, NULL);
-		if (bytesReceived == 0) //Connection closed gracefully
+		
+		//Connection closed gracefully
+		if (bytesReceived == 0) 
 		{
+			Debug::Error("Connection closed gracefully while receiving data.");
 			return NetResult::Error;
 		}
 
 		if (bytesReceived == SOCKET_ERROR)
 		{
 			int error = WSAGetLastError();
+			Debug::Error("Error recieving data: " + std::to_string(error));
+
 			return NetResult::Error;
 		}
 
@@ -196,33 +203,65 @@ namespace Network
 
 	NetResult TcpSocket::Send(Message& message)
 	{
-		uint16_t encodedMessageSize = htons(message.buffer.size());
+		NetResult result = SendAll(message.buffer.data(), message.buffer.size());
 
-		NetResult result = SendAll(&encodedMessageSize, sizeof(uint16_t));
 		if (result != NetResult::Success)
+		{
 			return NetResult::Error;
-
-		result = SendAll(message.buffer.data(), message.buffer.size());
-		if (result != NetResult::Success)
-			return NetResult::Error;
+		}
 
 		return NetResult::Success;
 	}
 
 	NetResult TcpSocket::Recv(Message& message)
 	{
-		//message.Clear();
-		int byteSize = 48;
+		int byteSize = 64;
+
+		message.Clear();
 		message.buffer.resize(byteSize);
 
-		NetResult result = RecvAll(&message.buffer[0], byteSize);
-		if (result != NetResult::Success)
+		while (handle != INVALID_SOCKET)
 		{
-			Debug::Error("Error receiving data: ");
-			return NetResult::Error;
+			//Try to recieve from  the remote client
+			NetResult result = RecvAll(&message.buffer[0], byteSize);
+			
+			if (result != NetResult::Success)
+			{
+				Debug::Error("Error receiving data: ");
+			}
 		}
 
-		Debug::Log("Data received good: ");
+		return NetResult::Success;
+	}
+
+	NetResult TcpSocket::Set(bool value)
+	{
+		if (value == true) //Non-Blocking
+		{
+			unsigned long i = 1;
+			int result = ioctlsocket(handle, FIONBIO, &i);
+
+			if (result == SOCKET_ERROR)
+			{
+				int error = WSAGetLastError();
+				Debug::Error("Failed to set newConnection as non Blocking: " + std::to_string(error));
+				return NetResult::Error;
+			}
+		}
+
+		if (value == false) //Blocking
+		{
+			unsigned long i = 0;
+			int result = ioctlsocket(handle, FIONBIO, &i);
+
+			if (result == SOCKET_ERROR)
+			{
+				int error = WSAGetLastError();
+				Debug::Error("Failed to set newConnection as Blocking: " + std::to_string(error));
+				return NetResult::Error;
+			}
+		}
+		
 		return NetResult::Success;
 	}
 

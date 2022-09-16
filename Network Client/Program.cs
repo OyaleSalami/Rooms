@@ -1,23 +1,24 @@
-﻿using System;
-using Rooms;
+﻿using Rooms;
+using System;
 
 class Program
 {
-    static Client gameClient = new Client();
-    static void Main(string[] args)
+    public static Client gameClient = new Client();
+
+    static void Main()
     {
         gameClient.Connect(new Endpoint(8088, "127.0.0.1"));
 
-        Console.Read();
-        Console.WriteLine("Hello World");
-        
+        gameClient.AddHandler(Message.Type.chat, Handler.Chat);
+
         while (true)
         {
-            Console.Read();
-            Message message = new Message();
-            message.Add("Data received good:: ");
+            string text = Console.ReadLine();
+            Message message = new Message(Message.Type.chat);
+            message.Add(text);
+            message.Seal();
 
-            gameClient.Send(IMessage.Mode.Tcp, message);
+            gameClient.Send(Message.Mode.Tcp, message);
             Console.WriteLine("Sent");
         }
     }

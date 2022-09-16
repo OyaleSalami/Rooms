@@ -15,7 +15,7 @@ namespace Rooms
 
         public void AddMessage(Message message)
         {
-             queue.Add(message);
+            queue.Add(message);
 
         }
 

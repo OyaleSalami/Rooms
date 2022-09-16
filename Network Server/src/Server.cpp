@@ -13,53 +13,107 @@ namespace Network
 
 	void Server::Start()
 	{
-		//Create socket
+		clients.clear();
+		clientFd.clear();
+
+		//Create the listen socket
 		if (ListenSocket.Create() == NetResult::Success)
 		{
-			Debug::Log("Socket created", false);
 			running = true;
 			listening = true;
+			
+			//Set it as a non-blocking socket
+			ListenSocket.Set(true);
 
-			//Bind Socket
-			if (ListenSocket.Bind(endpoint) != NetResult::Success)
-			{
-				Debug::Error("Failed to bind socket");
-			}
+			//Bind the socket to an endpoint
+			ListenSocket.Bind(endpoint);
+
+			//Start listening for new connections
+			ListenSocket.Listen(endpoint);
+
+			WSAPOLLFD listenSocketFd = {};
+			listenSocketFd.fd = ListenSocket.handle;
+			listenSocketFd.events = POLLRDNORM;
+			listenSocketFd.revents = 0;
+
+			clientFd.push_back(listenSocketFd);
+
+			Debug::Log("Socket is listeneing ...");
 		}
 		else
 		{
 			Debug::Error("Failed to create socket");
 		}
-
-		//Listen asynchronuously
-		std::future<int> result = std::async(std::launch::async, listen, ListenSocket.handle, 100);
 	}
 
 	void Server::Update()
 	{
-		//Listen
-		if (ListenSocket.Listen(endpoint) == NetResult::Success)
+		if (WSAPoll(clientFd.data(), clientFd.size(), 1) > 0)
 		{
-			Debug::Log("Socket successfully listening on port: " + std::to_string(endpoint.GetPort()), false);
-			
-			TcpSocket newConnection;
-			int _id = GetNext(); //Get the next free client space
-			clients[_id].id = _id; //Set the id for the Client class
+			//The listen socket is the first item on the array 
+			WSAPOLLFD& listenSocket = clientFd[0];
 
-			//Accept
-			if (ListenSocket.Accept(clients[_id].tcp) == NetResult::Success)
+			if (listenSocket.revents & POLLRDNORM)
 			{
-				Debug::Log("New connection accepted", false);
+				TcpSocket connection;
+				//Accept the new connections
+				if (ListenSocket.Accept(connection) == NetResult::Success)
+				{
+					clients.emplace_back(connection.handle);
+					Debug::Log("New connection accepted");
+
+					WSAPOLLFD connectionFd = {};
+					connectionFd.fd = connection.handle;
+					connectionFd.events = POLLRDNORM;
+					connectionFd.revents = 0;
+
+					clientFd.push_back(connectionFd);
+				}
+				else
+				{
+					Debug::Error("No new connection accepted");
+				}
 			}
-			else
+
+			for (int i = clientFd.size()-1; i >= 1; i--)
 			{
-				Debug::Error("Failed to accept the new connection");
+				int id = i - 1;
+				Client current = clients[id];
+
+				//Error handling
+				if (clientFd[i].revents & (POLLERR || POLLHUP || POLLNVAL)) //Error occured
+				{
+					DisconnectClient(id, "Polling Error");
+					continue; //Skip to the next one and dont bother handling data
+				}
+
+				//Handling data
+				if (clientFd[i].revents & POLLRDNORM)
+				{
+					echoBuffer.push_back(current.Update()); //Update the client(Receive data)
+				}
 			}
 		}
-		else
+
+		Echo(); //Send back the data received 
+	}
+
+	void Server::Echo()
+	{
+		try
 		{
-			Debug::Error("Failed to listen for new connections", false);
+			for (auto& message : echoBuffer)
+			{
+				SendToAll(SendMode::Tcp, message);
+			}
 		}
+		catch (...)
+		{
+			Debug::Error("Failed while trying to echo back received messages");
+			return;
+		}
+
+		echoBuffer.clear(); //Clear the buffer if all messages were sent
 	}
 
 	void Server::Stop()
@@ -70,30 +124,29 @@ namespace Network
 		ListenSocket.Close();
 	}
 
-	int Server::GetNext()
+	void Server::SendToAll(SendMode mode, Message& message)
 	{
-		for (int i = 0; i < maxPlayers; i++)
-		{
-			if (clients[i].GetId() == -1)
-			{
-				return i;
-			}
-		}
-
-		return -1;
-	}
-
-	void Server::SendToAll(SendMode mode, const Message& message)
-	{
+		//TODO: Only TCP Implemented for now
 		if (mode == SendMode::Tcp)
 		{
-			for (int i = 0; i < maxPlayers; i++)
+			for (unsigned int i = 0; i < clients.size(); i++)
 			{
-				if (clients[i].GetId() != -1)
+				//Send the message to each connected client
+				if (clients[i].tcp.handle != INVALID_SOCKET)
 				{
-					clients[i].tcp.SendAll(message.buffer.data(), message.buffer.size());
+					clients[i].tcp.Send(message);
 				}
 			}
 		}
+	}
+
+	void Server::DisconnectClient(int id, std::string note)
+	{
+		clientFd.erase(clientFd.begin() + id + 1);
+		
+		clients[id].Disconnect(note);
+		clients.erase(clients.begin() + id);
+
+		Debug::Warning("Connection lost: " + note);
 	}
 }

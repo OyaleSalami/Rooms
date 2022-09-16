@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Rooms.Transport
 {
@@ -23,7 +20,7 @@ namespace Rooms.Transport
             socket = new TcpClient();
             buffer = new byte[socket.ReceiveBufferSize];
         }
-        
+
         /// <summary>Attempt to connect to the bound endpoint</summary>
         ///<param name="ep">Endpoint of the remote host</param>
         public void Connect(Endpoint ep)
@@ -42,15 +39,15 @@ namespace Rooms.Transport
             socket.EndConnect(connection);
 
             Console.WriteLine("TCP Connection State: " + socket.Connected);
-           
+
             //Set the connection state of the TCP client
-            isConnected = true; 
+            isConnected = true;
 
             //Get the network stream for sending and receiving data
             stream = socket.GetStream();
 
             //Starts receiving data asynchronously from the server
-            stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+            stream.BeginRead(buffer, 0, Message.MAX_MSG_SIZE, HandleDataCallback, null);
         }
 
         /// <summary>Handle the incoming data from the remote client</summary>
@@ -61,22 +58,22 @@ namespace Rooms.Transport
             {
                 //Get the number of bytes read from the stream
                 int bytesRead = stream.EndRead(connection);
-                
-                if(bytesRead >= 0)
+
+                if (bytesRead >= 0)
                 {
                     //If data was received from the remote host
                     byte[] data = new byte[bytesRead];
-                    
+
                     Array.Copy(buffer, data, bytesRead);
 
+                    buffer = new byte[Message.MAX_MSG_SIZE]; //Reset the buffer before handling data
                     HandleData(data); //Handles (data)
-                    buffer = new byte[socket.ReceiveBufferSize];
                 }
 
                 //Starts receiving data asynchronously from the remote host again
-                stream.BeginRead(buffer, 0, socket.ReceiveBufferSize, HandleDataCallback, null);
+                stream.BeginRead(buffer, 0, Message.MAX_MSG_SIZE, HandleDataCallback, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Error receiving data: " + ex);
                 Disconnect();
@@ -85,12 +82,22 @@ namespace Rooms.Transport
 
         private void HandleData(byte[] data)
         {
-            Message message = new Message(data);
-            string text = message.ReadString();
+            Message message = new Message(data); //Represent the data as a packet
 
-            Console.WriteLine("Data Handled: ");
+            int size = message.ReadInt(); //Get the size of message
+            int type = message.ReadInt(); //Get the type of message
 
-            Console.WriteLine(text);
+            Console.WriteLine("Size: " + size);
+            Console.WriteLine("Type: " + type);
+
+            if(Program.gameClient.messageHandlers.ContainsKey(type))
+            {
+                Program.gameClient.messageHandlers[type](message);
+            }
+            else
+            {
+                Console.WriteLine("There is no handler for this type of message");
+            }
         }
 
         /// <summary>Sends a message to the remote host it is bound to</summary>
@@ -101,7 +108,6 @@ namespace Rooms.Transport
             {
                 try
                 {
-                    // Start sending data to the remote host
                     stream.BeginWrite(message.Unpack(), 0, message.Length(), null, null);
                     Console.WriteLine("Sending...");
                 }
@@ -116,6 +122,7 @@ namespace Rooms.Transport
         ///<summary>Disconnects the socket from the server it was bound to</summary>
         public void Disconnect()
         {
+            buffer = new byte[Message.MAX_MSG_SIZE];
             stream = null;
             socket.Close();
             socket = null;

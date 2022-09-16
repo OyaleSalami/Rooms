@@ -21,7 +21,7 @@
         /// <returns>True if valid, false if otherwise </returns>
         public bool IsValid()
         {
-            if(port == 0 || address == null)
+            if (port == 0 || address == null)
             {
                 return false;
             }
