@@ -21,7 +21,6 @@ namespace Network
 	{
 		Debug::Error("Disconnected: " + note);
 		tcp.Close();
-		closesocket(udp);
 	}
 
 	Message Client::Update()

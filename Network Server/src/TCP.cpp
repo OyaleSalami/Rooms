@@ -48,6 +48,7 @@ namespace Network
 
 		handle = INVALID_SOCKET;
 		return NetResult::Success;
+		Debug::Log("Closed Error!");
 	}
 
 	NetResult TcpSocket::Bind(Endpoint endpoint)

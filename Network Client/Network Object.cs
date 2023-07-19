@@ -1,12 +1,8 @@
-﻿namespace Network_Client
+﻿namespace Rooms
 {
-    class NetworkObject
+    /// <summary>A Tracked Network Object</summary>
+    struct NetworkObject
     {
         public readonly int NetworkId;
-
-        public NetworkObject(int id)
-        {
-            NetworkId = id;
-        }
     }
 }

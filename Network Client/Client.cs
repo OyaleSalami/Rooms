@@ -21,7 +21,7 @@ namespace Rooms
         /// <param name="message">Type of Message to be handled</param>
         public delegate void MessageHandler(Message message);
         /// <summary>A dictionary to store all function handlers matching them to a key(type)</summary>
-        public Dictionary<int, MessageHandler> messageHandlers;
+        public static Dictionary<int, MessageHandler> messageHandlers;
 
         ///<summary>Initializes the message handler dictionary</summary>
         private void Init()
@@ -46,29 +46,29 @@ namespace Rooms
             endpoint = ep;
             Init();
             tcp = new TCP(); //Create TCP Socket
-            udp = new UDP(ep); //Create and Bind UDP socket to remote endpoint
+            //udp = new UDP(ep); //Create and Bind UDP socket to remote endpoint
 
             tcp.Connect(ep); //Attempts to connect the TCP socket
-            udp.Connect(); //Attempts to connect the UDP socket
+            //udp.Connect(); //Attempts to connect the UDP socket
         }
 
         /// <summary>Sends a message to the remote host that the client is bound to</summary>
         /// <param name="mode">Transport used to send the message</param>
         /// <param name="message">Message to bo sent</param>
-        public void Send(Message.Mode mode, Message message)
+        public void Send(Mode mode, Message message)
         {
             //message.Add(NetworkId); //Adds the client's ID to the message
             //message.Seal(); //Readies the message for sending
 
-            if (mode == Message.Mode.Tcp)
+            if (mode == Mode.Tcp)
             {
                 tcp.Send(message); //Sends a message via TCP
             }
-            else if (mode == Message.Mode.Udp)
+            else if (mode == Mode.Udp)
             {
                 udp.Send(message); //Sends a message via UDP(Unreliable)
             }
-            else if (mode == Message.Mode.Reliable)
+            else if (mode == Mode.Reliable)
             {
                 udp.SendReliable(message); //Sends a message via UDP(Reliable)
             }
@@ -81,7 +81,7 @@ namespace Rooms
         ///<summary>Disconnect the client from the server</summary>
         public void Disconnect()
         {
-            tcp.Disconnect();
+            //tcp.Disconnect();
             udp.Disconnect();
             endpoint.Reset();
             NetworkId = -1;

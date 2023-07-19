@@ -1,5 +1,4 @@
-﻿using Rooms.Util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,18 +7,11 @@ namespace Rooms
     /// <summary>Represents a message to be sent over the network</summary>
     public class Message : IMessage
     {
-        /// <summary>Maximum size of a message</summary>
+        /// <summary>Maximum size of a message(bytes)</summary>
         public const int MAX_MSG_SIZE = 2048;
 
-        ///<summary>Empty constructor</summary>
-        public Message()
-        {
-            buffer = new List<byte>();
-            ResetReadHead();
-        }
-
-        ///<summary>Declaring an empty message</summary>
-        ///<param name="type">The indetifier for which type of message it is</param>
+        ///<summary>Creating an empty message</summary>
+        ///<param name="type">The type of message</param>
         public Message(Type type)
         {
             buffer = new List<byte>();
@@ -35,45 +27,50 @@ namespace Rooms
             buffer.AddRange(data);
             ResetReadHead();
         }
+
+        ///<summary>The type of the message</summary>
+        public enum Type : byte
+        {
+            ///<summary>Network test</summary>
+            test = 0,
+
+            ///<summary>Authentication request</summary>
+            authRequest,
+
+            ///<summary>Authentication response</summary>
+            authCallback,
+
+            ///<summary>Authentication failure</summary>
+            authFailed,
+
+            ///<summary>Ping request</summary>
+            pingRequest,
+
+            ///<summary>Ping response</summary>
+            pingCallback,
+
+            ///<summary>Chat message</summary>
+            chat,
+
+            ///<summary>Custom message</summary>
+            custom
+        }
+
     }
 
     /// <summary>Base class for all type of messages</summary>
     public abstract class IMessage
     {
-        ///To indicate the postion of the read head
+        ///<summary>Read Head index</summary>
         protected int readHead;
-        ///To lock/unlock writing access
+
+        /// <summary>Write access</summary>
         protected bool writeable = true;
-        ///The array where all the data is stored
+
+        ///<summary>The data buffer</summary>
         protected List<byte> buffer;
 
-        /// <summary>Inbuilt enum to identify the type of enum</summary>
-        public enum Type
-        {
-            /// <summary>Identifies a chat message</summary>
-            chat = 1,
-            /// <summary>Identifies an authentication request</summary>
-            auth,
-            /// <summary>Returned by the server/client if authentication failed</summary>
-            authFailed,
-            /// <summary>Identifies a ping check message</summary>
-            ping,
-            /// <summary>Identifies a custom message</summary>
-            custom
-        }
-
-        ///<summary>Refers to the transport mode by which a message is to be sent</summary>
-        public enum Mode
-        {
-            /// <summary>A message to be broadcasted</summary>
-            Multicast = 1,
-            /// <summary>A message to be sent over TCP</summary>
-            Tcp,
-            /// <summary>A message to be sent over UDP(Unreliable)</summary>
-            Udp,
-            /// <summary>A message to be sent over UDP(Reliable)</summary>
-            Reliable
-        }
+        
 
         #region Auxilliary Functions
         ///<summary>Resets the read head back to the start of the message</summary>
@@ -82,7 +79,7 @@ namespace Rooms
             readHead = 0;
         }
 
-        /// <returns>The message as an array</returns>
+        ///<returns>The message as an array</returns>
         public byte[] Unpack()
         {
             return buffer.ToArray();
@@ -91,7 +88,7 @@ namespace Rooms
         /// <summary>Check to see whether the message has valid info</summary>
         public bool IsValid()
         {
-            if (buffer.Count > 4)
+            if (buffer.Count >= 4)
             {
                 return true;
             }
@@ -121,7 +118,7 @@ namespace Rooms
         #endregion
 
         #region Add Functions
-        /// <summary>Adds a byte the message</summary>
+        /// <summary>Adds a byte to the message</summary>
         /// <param name="value">Byte to be added</param>
         /// <exception cref="Exception"> Writing is locked</exception>
         public void Add(byte value)
@@ -136,7 +133,7 @@ namespace Rooms
             }
         }
 
-        /// <summary>Adds a short the message</summary>
+        /// <summary>Adds a short to the message</summary>
         /// <param name="value">Short to be added</param>
         /// <exception cref="Exception"> Writing is locked</exception>
         public void Add(short value)
@@ -244,57 +241,6 @@ namespace Rooms
             }
         }
 
-        /// <summary>Adds a vector2 to the message</summary>
-        /// <param name="value">Vector2 to be added</param>
-        /// <exception cref="Exception"> Writing is locked</exception>
-        public void Add(Vector2 value)
-        {
-            if (writeable == true)
-            {
-                Add(value.x);
-                Add(value.y);
-            }
-            else
-            {
-                throw new Exception("Error: Trying to write to a locked message");
-            }
-        }
-
-        /// <summary>Adds a vector3 to the message</summary>
-        /// <param name="value">Vector3 to be added</param>
-        /// <exception cref="Exception"> Writing is locked</exception>
-        public void Add(Vector3 value)
-        {
-            if (writeable == true)
-            {
-                Add(value.x);
-                Add(value.y);
-                Add(value.z);
-            }
-            else
-            {
-                throw new Exception("Error: Trying to write to a locked message");
-            }
-        }
-
-        /// <summary>Adds a quaternion to the message</summary>
-        /// <param name="value">Quaternion to be added</param>
-        /// <exception cref="Exception"> Writing is locked</exception>
-        public void Add(Quaternion value)
-        {
-            if (writeable == true)
-            {
-                Add(value.x);
-                Add(value.y);
-                Add(value.z);
-                Add(value.w);
-            }
-            else
-            {
-                throw new Exception("Error: Trying to write to a locked message");
-            }
-        }
-
         /// <summary>Adds a byte array to the message</summary>
         /// <param name="value">Byte array to be added</param>
         /// <exception cref="Exception"> Writing is locked</exception>
@@ -313,298 +259,175 @@ namespace Rooms
         #endregion
 
         #region Read Functions
-        /// <summary>Reads a short from the message and moves the read head</summary>
-        /// <returns>Short from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public short ReadShort()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    short value = BitConverter.ToInt16(buffer.ToArray(), readHead);
-                    readHead += sizeof(short);
 
-                    return 0;
+        /// <summary>Reads a short from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
+        /// <returns>Short read from the message</returns>
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public short ReadShort(bool moveReadHead = true)
+        {
+            if (readHead + sizeof(short) <= buffer.Count)
+            {
+                short value = BitConverter.ToInt16(buffer.ToArray(), readHead);
+                if(moveReadHead == true)
+                {
+                    readHead += sizeof(short); //Move the read head!
                 }
+
+                return value;
+            }
+            else
+            {
                 throw new Exception("Unable to Read Short: End of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Short: " + e);
-            }
-
         }
-        /// <summary>Reads an int from the message and moves the read head</summary>
-        /// <returns>Int from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public int ReadInt()
+
+        /// <summary>Reads an int from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
+        /// <returns>Int read from the message</returns>
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public int ReadInt(bool moveReadHead = true)
         {
-            try
+            if (readHead + sizeof(int) <= buffer.Count)
             {
-                if (buffer.Count > readHead)
+                int value = BitConverter.ToInt32(buffer.ToArray(), readHead);
+                if (moveReadHead == true)
                 {
-                    int value = BitConverter.ToInt32(buffer.ToArray(), readHead);
                     readHead += sizeof(int);
-
-                    return value;
                 }
+
+                return value;
+            }
+            else
+            {
                 throw new Exception("Unable to Read Int: End of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Int: " + e);
-            }
         }
-        /// <summary>Read a long from the message and moves the read head</summary>
+
+        /// <summary>Read a long from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
         /// <returns>Long from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public long ReadLong()
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public long ReadLong(bool moveReadHead = true)
         {
-            try
+            if (readHead + sizeof(long) <= buffer.Count)
             {
-                if (buffer.Count > readHead)
+                long value = BitConverter.ToInt64(buffer.ToArray(), readHead);
+                if(moveReadHead == true)
                 {
-                    long value = BitConverter.ToInt64(buffer.ToArray(), readHead);
                     readHead += sizeof(long);
-
-                    return value;
                 }
+
+                return value;
+            }
+            else
+            {
                 throw new Exception("Unable to Read Long: End of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Long: " + e);
-            }
-
         }
-        /// <summary>Reads a bool from the message and moves the read head</summary>
-        /// <returns>Bool from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public bool ReadBool()
+
+        /// <summary>Reads a bool from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
+        /// <returns>Bool read from the message</returns>
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public bool ReadBool(bool moveReadHead = true)
         {
-            try
+            if (readHead + sizeof(bool) <= buffer.Count)
             {
-                if (buffer.Count > readHead)
+                bool value = BitConverter.ToBoolean(buffer.ToArray(), readHead);
+                if(moveReadHead == true)
                 {
-                    bool value = BitConverter.ToBoolean(buffer.ToArray(), readHead);
                     readHead += sizeof(bool);
-
-                    return value;
                 }
+
+                return value;
+            }
+            else
+            {
                 throw new Exception("Unable to Read Bool: End Of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Bool: " + e);
-            }
         }
-        /// <summary>Reads a float from the message and moves the read head</summary>
-        /// <returns>Bool from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public float ReadFloat()
+
+        /// <summary>Reads a float from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
+        /// <returns>Float read from the message</returns>
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public float ReadFloat(bool moveReadHead = true)
         {
-            try
+            if (readHead + sizeof(float) <= buffer.Count)
             {
-                if (buffer.Count > readHead)
+                float value = BitConverter.ToSingle(buffer.ToArray(), readHead);
+                if(moveReadHead == true)
                 {
-                    float value = BitConverter.ToSingle(buffer.ToArray(), readHead);
                     readHead += sizeof(float);
-
-                    return value;
                 }
+
+                return value;
+            }
+            else
+            {
                 throw new Exception("Unable to Read Float: End of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Float: " + e);
-            }
         }
-        /// <summary>Reads a double from the message and moves the read head</summary>
-        /// <returns>Double from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public double ReadDouble()
+
+        /// <summary>Reads a double from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
+        /// <returns>Double read from the message</returns>
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public double ReadDouble(bool moveReadHead = true)
         {
-            try
+            if (readHead + sizeof(double) <= buffer.Count)
             {
-                if (buffer.Count > readHead)
+                double value = BitConverter.ToDouble(buffer.ToArray(), readHead);
+                if(moveReadHead == true)
                 {
-                    double value = BitConverter.ToDouble(buffer.ToArray(), readHead);
                     readHead += sizeof(double);
-
-                    return value;
                 }
+
+                return value;
+            }
+            else
+            {
                 throw new Exception("Unable to Read Double: End of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Double: " + e);
-            }
         }
-        /// <summary>Reads a string from the message and moves the read head</summary>
-        /// <returns>String from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public string ReadString()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    int stringLength = ReadInt();
-                    string text = Encoding.ASCII.GetString(buffer.ToArray(), readHead, stringLength);
 
-                    readHead += stringLength;
+        /// <summary>Reads a string from the message</summary>
+        /// <param name="moveReadHead">If false, It won't move the read head</param>
+        /// <returns>String read from the message</returns>
+        /// <exception cref="Exception">EoF message reached/Message is not valid</exception>
+        public string ReadString(bool moveReadHead = true)
+        {
+            //Check if you can read the size then check if you can read the string
+            if (readHead + sizeof(int) <= buffer.Count)
+            {
+                int stringLength = ReadInt();
+                if(readHead + stringLength <= buffer.Count)
+                {
+                    string text = Encoding.ASCII.GetString(buffer.ToArray(), readHead, stringLength);
+                    
+                    if(moveReadHead == true)
+                    {
+                        readHead += stringLength;
+                    }
                     return text;
                 }
+                else
+                {
+                    throw new Exception("Unable to read: String is not complete!");
+                }
+            }
+            else
+            {
                 throw new Exception("Unable to Read String: End of Packet Reached");
             }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read String: " + e);
-            }
         }
-        #endregion
 
-        #region Check Functions
-        /// <summary>Reads a short from the message without moving the read head</summary>
-        /// <returns>Short from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public short CheckShort()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    short value = BitConverter.ToInt16(buffer.ToArray(), readHead);
-                    return value;
-                }
-                throw new Exception("Unable to Read Short: End of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Short: " + e);
-            }
-
-        }
-        /// <summary>Reads an int from the message without moving the read head</summary>
-        /// <returns>Int from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public int CheckInt()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    int value = BitConverter.ToInt32(buffer.ToArray(), readHead);
-                    return value;
-                }
-                throw new Exception("Unable to Read Int: End of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Int: " + e);
-            }
-        }
-        /// <summary>Read a long from the message without moving the read head</summary>
-        /// <returns>Long from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public long CheckLong()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    long value = BitConverter.ToInt64(buffer.ToArray(), readHead);
-                    return value;
-                }
-                throw new Exception("Unable to Read Long: End of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Long: " + e);
-            }
-        }
-        /// <summary>Reads a bool from the message without moving the read head</summary>
-        /// <returns>Bool from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public bool CheckBool()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    bool value = BitConverter.ToBoolean(buffer.ToArray(), readHead);
-                    return value;
-                }
-                throw new Exception("Unable to Read Bool: End Of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Bool: " + e);
-            }
-        }
-        /// <summary>Reads a float from the message without moving the read head</summary>
-        /// <returns>Bool from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public float CheckFloat()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    float value = BitConverter.ToSingle(buffer.ToArray(), readHead);
-                    return value;
-                }
-                throw new Exception("Unable to Read Float: End of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Float: " + e);
-            }
-        }
-        /// <summary>Reads a double from the message without moving the read head</summary>
-        /// <returns>Double from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public double CheckDouble()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    double value = BitConverter.ToDouble(buffer.ToArray(), readHead);
-                    return value;
-                }
-                throw new Exception("Unable to Read Double: End of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read Double: " + e);
-            }
-        }
-        /// <summary>Reads a string from the message without moving the read head</summary>
-        /// <returns>String from the message</returns>
-        /// <exception cref="Exception">End of message reached/Message is not valid</exception>
-        public string CheckString()
-        {
-            try
-            {
-                if (buffer.Count > readHead)
-                {
-                    int stringLength = ReadInt();
-                    string text = Encoding.ASCII.GetString(buffer.ToArray(), readHead, stringLength);
-                    return text;
-                }
-                throw new Exception("Unable to Read String: End of Packet Reached");
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Unable to Read String: " + e);
-            }
-        }
         #endregion
 
         #region Encryption Functions
         //TODO: Encryption
         #endregion
     }
+
 }

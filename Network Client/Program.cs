@@ -3,9 +3,10 @@ using System;
 
 class Program
 {
+    /*
     public static Client gameClient = new Client();
 
-    static void Main()
+    static void aim()
     {
         gameClient.Connect(new Endpoint(8088, "127.0.0.1"));
 
@@ -22,5 +23,6 @@ class Program
             Console.WriteLine("Sent");
         }
     }
+    */
 }
 
